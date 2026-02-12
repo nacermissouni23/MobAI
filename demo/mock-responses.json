@@ -1,0 +1,11 @@
+{
+  "user": {
+    "id": "1",
+    "name": "Demo User",
+    "email": "demo@example.com"
+  },
+  "dashboard_data": [
+    { "id": 101, "title": "Project Alpha", "status": "active" },
+    { "id": 102, "title": "Project Beta", "status": "completed" }
+  ]
+}
