@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "310285214512",
+    "project_id": "bms-wms",
+    "storage_bucket": "bms-wms.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:310285214512:android:793bea804ec1940938def5",
+        "android_client_info": {
+          "package_name": "com.example.frontend"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArwC-DtgPu-5PAQtKexhpA91SINsGQOX0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
