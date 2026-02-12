@@ -1,0 +1,7 @@
+{
+  "example_response": {
+    "id": "123",
+    "text": "This is a mock response for offline development or testing fallback.",
+    "status": "success"
+  }
+}
