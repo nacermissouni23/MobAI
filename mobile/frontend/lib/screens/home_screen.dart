@@ -165,8 +165,7 @@ class HomeScreen extends StatelessWidget {
                     height: 56,
                     child: ElevatedButton.icon(
                       onPressed: () {
-                        // New delivery action
-                        Navigator.of(context).pushNamed('/new-receipt');
+                        Navigator.of(context).pushNamed('/new-delivery');
                       },
                       icon: const Icon(Icons.local_shipping),
                       label: const Text('NEW DELIVERY'),

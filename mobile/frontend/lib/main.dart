@@ -38,6 +38,7 @@ class WarehouseApp extends StatelessWidget {
           '/add-sku': (context) => const AddSkuScreen(),
           '/add-user': (context) => const AddUserScreen(),
           '/new-receipt': (context) => const NewReceiptScreen(),
+          '/new-delivery': (context) => const NewDeliveryScreen(),
           '/pick-1': (context) => const PickScreen(),
           '/pick-2': (context) => const PickValidateScreen(),
           '/suggestion-details': (context) {

@@ -54,10 +54,6 @@ class _SkusScreenState extends State<SkusScreen> {
                             Icons.search,
                             color: AppColors.primary,
                           ),
-                          suffixIcon: const Icon(
-                            Icons.filter_list,
-                            color: AppColors.primary,
-                          ),
                           filled: true,
                           fillColor: const Color(0xFFF0F4F4),
                           border: OutlineInputBorder(
