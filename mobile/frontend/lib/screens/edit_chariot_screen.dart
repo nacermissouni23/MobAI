@@ -14,29 +14,19 @@ class EditChariotScreen extends StatefulWidget {
 }
 
 class _EditChariotScreenState extends State<EditChariotScreen> {
-  late TextEditingController _nameController;
-  late TextEditingController _locationController;
-  late TextEditingController _currentUserController;
-  late ChariotStatus _status;
+  late TextEditingController _idController;
+  late bool _isActive;
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.chariot.name);
-    _locationController = TextEditingController(
-      text: widget.chariot.location ?? '',
-    );
-    _currentUserController = TextEditingController(
-      text: widget.chariot.currentUser ?? '',
-    );
-    _status = widget.chariot.status;
+    _idController = TextEditingController(text: widget.chariot.id);
+    _isActive = widget.chariot.isActive;
   }
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _locationController.dispose();
-    _currentUserController.dispose();
+    _idController.dispose();
     super.dispose();
   }
 
@@ -85,23 +75,25 @@ class _EditChariotScreenState extends State<EditChariotScreen> {
                     ),
                   ),
                   const SizedBox(height: 32),
-                  // Name
-                  _label('CHARIOT NAME'),
+                  // Chariot ID
+                  _label('CHARIOT ID'),
                   const SizedBox(height: 8),
                   TextField(
-                    controller: _nameController,
+                    controller: _idController,
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
+                      fontFamily: 'monospace',
                     ),
-                    decoration: _inputDecoration('Enter chariot name'),
+                    decoration: _inputDecoration('Enter Chariot ID'),
                   ),
                   const SizedBox(height: 20),
-                  // Status
-                  _label('STATUS'),
-                  const SizedBox(height: 8),
+                  // Is Active
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.surface,
                       borderRadius: BorderRadius.circular(12),
@@ -109,100 +101,25 @@ class _EditChariotScreenState extends State<EditChariotScreen> {
                         color: AppColors.primary.withValues(alpha: 0.2),
                       ),
                     ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<ChariotStatus>(
-                        isExpanded: true,
-                        value: _status,
-                        items: ChariotStatus.values.map((s) {
-                          return DropdownMenuItem(
-                            value: s,
-                            child: Text(
-                              s == ChariotStatus.available
-                                  ? 'Available'
-                                  : s == ChariotStatus.inUse
-                                  ? 'In Use'
-                                  : 'Offline',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (val) {
-                          if (val != null) setState(() => _status = val);
-                        },
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  // Location
-                  _label('LOCATION'),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: _locationController,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    decoration: _inputDecoration('e.g. Zone A-12'),
-                  ),
-                  const SizedBox(height: 20),
-                  // Current User (if in use)
-                  _label('ASSIGNED USER'),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: _currentUserController,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    decoration: _inputDecoration('User name (if in use)'),
-                  ),
-                  const SizedBox(height: 32),
-                  // Delete chariot
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: OutlinedButton.icon(
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (ctx) => AlertDialog(
-                            title: const Text('Delete Chariot'),
-                            content: Text(
-                              'Are you sure you want to delete ${widget.chariot.name}?',
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(ctx),
-                                child: const Text('Cancel'),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  context.read<ChariotsCubit>().deleteChariot(
-                                    widget.chariot.id,
-                                  );
-                                  Navigator.pop(ctx);
-                                  Navigator.of(context).pop();
-                                },
-                                child: const Text(
-                                  'Delete',
-                                  style: TextStyle(color: Colors.red),
-                                ),
-                              ),
-                            ],
+                    child: Row(
+                      children: [
+                        Checkbox(
+                          value: _isActive,
+                          onChanged: (newValue) =>
+                              setState(() => _isActive = newValue ?? true),
+                          activeColor: AppColors.primary,
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'ACTIVE',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.primary,
+                            letterSpacing: 0.5,
                           ),
-                        );
-                      },
-                      icon: const Icon(Icons.delete_outline, color: Colors.red),
-                      label: const Text(
-                        'DELETE CHARIOT',
-                        style: TextStyle(color: Colors.red),
-                      ),
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Colors.red),
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -220,40 +137,22 @@ class _EditChariotScreenState extends State<EditChariotScreen> {
                 ),
               ),
             ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: SizedBox(
-                    height: 56,
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('CANCEL'),
+            child: SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  context.read<ChariotsCubit>().updateChariot(
+                    widget.chariot.copyWith(
+                      id: _idController.text,
+                      isActive: _isActive,
                     ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  flex: 2,
-                  child: SizedBox(
-                    height: 56,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        context.read<ChariotsCubit>().updateChariot(
-                          widget.chariot.copyWith(
-                            name: _nameController.text,
-                            status: _status,
-                            location: _locationController.text,
-                            currentUser: _currentUserController.text,
-                          ),
-                        );
-                        Navigator.of(context).pop();
-                      },
-                      icon: const Icon(Icons.save),
-                      label: const Text('SAVE'),
-                    ),
-                  ),
-                ),
-              ],
+                  );
+                  Navigator.of(context).pop();
+                },
+                icon: const Icon(Icons.save),
+                label: const Text('SAVE'),
+              ),
             ),
           ),
         ],

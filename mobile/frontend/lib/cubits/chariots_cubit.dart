@@ -30,12 +30,7 @@ class ChariotsCubit extends Cubit<ChariotsState> {
   void addChariot(String chariotId) {
     if (state is ChariotsLoaded) {
       final current = (state as ChariotsLoaded).chariots;
-      final newChariot = Chariot(
-        id: chariotId,
-        name: 'Chariot #${chariotId.replaceAll('CH-', '')}',
-        status: ChariotStatus.available,
-        location: 'Unassigned',
-      );
+      final newChariot = Chariot(id: chariotId, isActive: true);
       emit(ChariotsLoaded([...current, newChariot]));
     }
   }

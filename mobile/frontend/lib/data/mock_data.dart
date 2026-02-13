@@ -164,49 +164,12 @@ class MockData {
 
   // Chariots
   static const List<Chariot> chariots = [
-    Chariot(
-      id: 'CH-001',
-      name: 'Chariot #001',
-      status: ChariotStatus.available,
-      location: 'Zone A-12',
-      details: 'Last used: 08:30 AM',
-    ),
-    Chariot(
-      id: 'CH-002',
-      name: 'Chariot #002',
-      status: ChariotStatus.inUse,
-      currentUser: 'J. Miller',
-      location: 'Zone C-04',
-      details: 'Active 45m',
-    ),
-    Chariot(
-      id: 'CH-003',
-      name: 'Chariot #003',
-      status: ChariotStatus.available,
-      location: 'Charging Dock B',
-      details: 'Battery 98%',
-    ),
-    Chariot(
-      id: 'CH-004',
-      name: 'Chariot #004',
-      status: ChariotStatus.inUse,
-      currentUser: 'S. Chen',
-      location: 'Zone A-02',
-      details: 'Active 12m',
-    ),
-    Chariot(
-      id: 'CH-005',
-      name: 'Chariot #005',
-      status: ChariotStatus.offline,
-      details: 'Scheduled Maintenance • Tech: R. Davis',
-    ),
-    Chariot(
-      id: 'CH-006',
-      name: 'Chariot #006',
-      status: ChariotStatus.available,
-      location: 'Standby Zone',
-      details: 'Ready',
-    ),
+    Chariot(id: 'CH-001', isActive: true),
+    Chariot(id: 'CH-002', isActive: true),
+    Chariot(id: 'CH-003', isActive: true),
+    Chariot(id: 'CH-004', isActive: true),
+    Chariot(id: 'CH-005', isActive: false),
+    Chariot(id: 'CH-006', isActive: true),
   ];
 
   // SKUs
