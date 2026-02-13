@@ -39,8 +39,18 @@ class WarehouseApp extends StatelessWidget {
           '/add-user': (context) => const AddUserScreen(),
           '/new-receipt': (context) => const NewReceiptScreen(),
           '/new-delivery': (context) => const NewDeliveryScreen(),
-          '/pick-1': (context) => const PickScreen(),
-          '/pick-2': (context) => const PickValidateScreen(),
+          '/pick-1': (context) {
+            final task =
+                ModalRoute.of(context)!.settings.arguments as WarehouseTask;
+            return PickScreen(task: task);
+          },
+          '/pick-2': (context) {
+            final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+            return PickValidateScreen(
+              task: args['task'] as WarehouseTask,
+              pickedQuantity: args['pickedQuantity'] as int,
+            );
+          },
           '/suggestion-details': (context) {
             final suggestion =
                 ModalRoute.of(context)?.settings.arguments as Suggestion?;

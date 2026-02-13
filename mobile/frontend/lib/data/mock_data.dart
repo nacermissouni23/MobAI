@@ -318,6 +318,7 @@ class MockData {
     Suggestion(
       id: 'SG001',
       productId: 'P-99823',
+      productName: 'Hydraulic Jack 5T',
       fromLocation: 'B7-N1-C2',
       toLocation: 'B7-0A-03-01',
       status: SuggestionStatus.ready,
@@ -327,6 +328,7 @@ class MockData {
     Suggestion(
       id: 'SG002',
       productId: 'P-77410',
+      productName: 'Steel Cable 10m',
       fromLocation: 'B7-N2-C3',
       toLocation: 'B7-0A-02-05',
       status: SuggestionStatus.urgent,
@@ -336,38 +338,22 @@ class MockData {
     Suggestion(
       id: 'SG003',
       productId: 'P-88231',
+      productName: 'LED Floodlight 100W',
       fromLocation: 'Receiving Dock A',
       toLocation: 'B7-N3-C5',
       status: SuggestionStatus.pending,
-      type: SuggestionType.storage,
+      type: SuggestionType.store,
       quantity: 25,
     ),
     Suggestion(
       id: 'SG004',
       productId: 'P-44102',
+      productName: 'WD-40 Specialist',
       fromLocation: 'Receiving Dock B',
       toLocation: 'B7-N1-C5',
       status: SuggestionStatus.ready,
-      type: SuggestionType.storage,
+      type: SuggestionType.store,
       quantity: 50,
-    ),
-    Suggestion(
-      id: 'SG005',
-      productId: 'P-99042',
-      fromLocation: 'B7-N1-C7',
-      toLocation: 'B7-0A-01-03',
-      status: SuggestionStatus.urgent,
-      type: SuggestionType.picking,
-      quantity: 15,
-    ),
-    Suggestion(
-      id: 'SG006',
-      productId: 'P-55219',
-      fromLocation: 'B7-N2-C8',
-      toLocation: 'B7-0A-02-01',
-      status: SuggestionStatus.pending,
-      type: SuggestionType.preparation,
-      quantity: 20,
     ),
   ];
 

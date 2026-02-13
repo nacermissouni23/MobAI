@@ -1,20 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/config/theme.dart';
+import 'package:frontend/data/models/models.dart';
+import 'package:frontend/screens/pick_validate_screen.dart';
 import 'package:frontend/widgets/widgets.dart';
 
-/// Pick Step 1: Shows product ID, quantity stepper, current location,
-/// path visualization grid, and a NEXT button.
 class PickScreen extends StatefulWidget {
-  final String productId;
-  final int initialQuantity;
-  final String currentLocation;
-
-  const PickScreen({
-    super.key,
-    this.productId = 'P-99042',
-    this.initialQuantity = 15,
-    this.currentLocation = 'Floor 1',
-  });
+  final WarehouseTask task;
+  const PickScreen({super.key, required this.task});
 
   @override
   State<PickScreen> createState() => _PickScreenState();
@@ -26,7 +18,18 @@ class _PickScreenState extends State<PickScreen> {
   @override
   void initState() {
     super.initState();
-    _quantity = widget.initialQuantity;
+    _quantity = widget.task.quantity;
+  }
+
+  void _handleNext() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => PickValidateScreen(
+          task: widget.task,
+          pickedQuantity: _quantity,
+        ),
+      ),
+    );
   }
 
   @override
@@ -41,271 +44,263 @@ class _PickScreenState extends State<PickScreen> {
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  // Product Identification
                   const SizedBox(height: 16),
-                  Text(
-                    'Product ID',
+                  
+                  // Product ID
+                  const Text(
+                    'PRODUCT ID',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.primary.withValues(alpha: 0.6),
-                      letterSpacing: 2,
+                      color: AppColors.textSecondary,
+                      letterSpacing: 1.5,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    widget.productId,
+                    widget.task.productId ?? 'UNKNOWN',
                     style: const TextStyle(
                       fontSize: 48,
                       fontWeight: FontWeight.w800,
-                      letterSpacing: -2,
                       color: AppColors.textMain,
+                      letterSpacing: -1,
                     ),
                   ),
                   const SizedBox(height: 24),
-                  // Quantity Section
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: AppColors.primary.withValues(alpha: 0.05),
-                      ),
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          'QUANTITY',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.primary.withValues(alpha: 0.6),
-                            letterSpacing: 2,
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                if (_quantity > 1) setState(() => _quantity--);
-                              },
-                              child: Container(
-                                width: 64,
-                                height: 64,
-                                decoration: BoxDecoration(
-                                  color: AppColors.primary.withValues(
-                                    alpha: 0.1,
-                                  ),
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: const Icon(
-                                  Icons.remove,
-                                  color: AppColors.primary,
-                                  size: 28,
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 120,
-                              child: Center(
-                                child: Text(
-                                  _quantity.toString(),
-                                  style: const TextStyle(
-                                    fontSize: 56,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.textMain,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () => setState(() => _quantity++),
-                              child: Container(
-                                width: 64,
-                                height: 64,
-                                decoration: BoxDecoration(
-                                  color: AppColors.primary,
-                                  borderRadius: BorderRadius.circular(16),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: AppColors.primary.withValues(
-                                        alpha: 0.3,
-                                      ),
-                                      blurRadius: 8,
-                                    ),
-                                  ],
-                                ),
-                                child: const Icon(
-                                  Icons.add,
-                                  color: Colors.white,
-                                  size: 28,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  // Location Info
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: AppColors.primary.withValues(alpha: 0.1),
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Icon(
-                            Icons.location_on,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Current Location',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: AppColors.primary.withValues(
-                                    alpha: 0.6,
-                                  ),
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              Text(
-                                widget.currentLocation,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.textMain,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {},
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
-                            textStyle: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          child: const Text('View Map'),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  // Path Visualization
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: AppColors.primary.withValues(alpha: 0.1),
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'PATH VISUALIZATION',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.primary.withValues(alpha: 0.6),
-                            letterSpacing: 2,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Center(
-                          child: SizedBox(
-                            width: 280,
-                            height: 280,
-                            child: CustomPaint(
-                              painter: _PathVisualizationPainter(
-                                gridColor: AppColors.primary.withValues(
-                                  alpha: 0.05,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            _LegendItem(color: Colors.blue, label: 'Start'),
-                            const SizedBox(width: 16),
-                            _LegendItem(
-                              color: Colors.blue,
-                              label: 'Target Slot',
-                              isOutlined: true,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 80), // Space for bottom button
+
+                  // Quantity Adjustment
+                  _buildQuantitySection(),
+                  const SizedBox(height: 24),
+
+                  // Location Card
+                  _buildLocationCard(),
+                  const SizedBox(height: 24),
+
+                  // Visualization
+                  _buildVisualization(),
                 ],
               ),
             ),
           ),
-          // Fixed Bottom CTA
+          
+          // Footer
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.backgroundLight.withValues(alpha: 0.9),
+              color: AppColors.surface,
+              border: Border(top: BorderSide(color: AppColors.neutralBorder)),
             ),
             child: SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pushNamed('/pick-2');
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Text(
-                      'NEXT',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    Icon(Icons.arrow_forward),
-                  ],
+               width: double.infinity,
+               height: 56,
+              child: ElevatedButton.icon(
+                onPressed: _handleNext,
+                icon: const Icon(Icons.arrow_forward),
+                label: const Text('NEXT'),
+                 style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
             ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuantitySection() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.neutralBorder),
+      ),
+      child: Column(
+        children: [
+          const Text(
+            'QUANTITY',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textSecondary,
+              letterSpacing: 1.5,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _QuantityButton(
+                icon: Icons.remove,
+                onPressed: () {
+                  if (_quantity > 1) setState(() => _quantity--);
+                },
+              ),
+              Text(
+                '$_quantity',
+                style: const TextStyle(
+                  fontSize: 48,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textMain,
+                ),
+              ),
+              _QuantityButton(
+                icon: Icons.add,
+                onPressed: () => setState(() => _quantity++),
+              ),
+            ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildLocationCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.neutralBorder),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Container(
+                 padding: const EdgeInsets.all(10),
+                 decoration: BoxDecoration(
+                   color: AppColors.primary.withValues(alpha: 0.1),
+                   borderRadius: BorderRadius.circular(8),
+                 ),
+                 child: const Icon(Icons.location_on, color: AppColors.primary),
+              ),
+              const SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'CURRENT LOCATION',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  Text(
+                    widget.task.fromLocation ?? 'Floor 1',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textMain,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          TextButton(
+            onPressed: () {},
+            child: const Text('View Map'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVisualization() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+         color: AppColors.surface,
+         borderRadius: BorderRadius.circular(16),
+         border: Border.all(color: AppColors.neutralBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'PATH VISUALIZATION',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textSecondary,
+              letterSpacing: 1.5,
+            ),
+          ),
+          const SizedBox(height: 16),
+          AspectRatio(
+             aspectRatio: 1,
+             child: GridView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 5,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 8,
+              ),
+              itemCount: 25,
+              itemBuilder: (context, index) {
+                // Mock simple path
+                // Start bottom-left (20), End top-right (4)? 
+                // Let's do a simple line
+                bool isStart = index == 20;
+                bool isEnd = index == 4;
+
+                return Container(
+                   decoration: BoxDecoration(
+                     color: isEnd 
+                       ? AppColors.primary 
+                       : (isStart ? Colors.blue : AppColors.primary.withValues(alpha: 0.05)),
+                     borderRadius: BorderRadius.circular(4),
+                   ),
+                   child: isEnd 
+                       ? const Center(child: Icon(Icons.flag, color: Colors.white, size: 16))
+                       : (isStart ? const Center(child: Icon(Icons.circle, color: Colors.white, size: 10)) : null),
+                );
+              },
+             ),
+          ),
+           const SizedBox(height: 12),
+           Row(
+             mainAxisAlignment: MainAxisAlignment.center,
+             children: [
+               _LegendItem(color: Colors.blue, label: 'Start'),
+               const SizedBox(width: 16),
+               _LegendItem(color: AppColors.primary, label: 'Target Slot'),
+             ],
+           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _QuantityButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onPressed;
+
+  const _QuantityButton({required this.icon, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onPressed,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        width: 60,
+        height: 60,
+        decoration: BoxDecoration(
+          color: AppColors.primary.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Icon(icon, color: AppColors.primary, size: 28),
       ),
     );
   }
@@ -314,13 +309,8 @@ class _PickScreenState extends State<PickScreen> {
 class _LegendItem extends StatelessWidget {
   final Color color;
   final String label;
-  final bool isOutlined;
 
-  const _LegendItem({
-    required this.color,
-    required this.label,
-    this.isOutlined = false,
-  });
+  const _LegendItem({required this.color, required this.label});
 
   @override
   Widget build(BuildContext context) {
@@ -330,91 +320,20 @@ class _LegendItem extends StatelessWidget {
           width: 8,
           height: 8,
           decoration: BoxDecoration(
-            color: isOutlined ? Colors.transparent : color,
+            color: color,
             shape: BoxShape.circle,
-            border: isOutlined ? Border.all(color: color, width: 2) : null,
           ),
         ),
-        const SizedBox(width: 4),
+        const SizedBox(width: 6),
         Text(
-          label,
-          style: TextStyle(
+          label.toUpperCase(),
+          style: const TextStyle(
             fontSize: 10,
-            fontWeight: FontWeight.w700,
-            color: AppColors.primary.withValues(alpha: 0.4),
-            letterSpacing: 1,
+            fontWeight: FontWeight.bold,
+            color: AppColors.textSecondary,
           ),
         ),
       ],
     );
   }
-}
-
-class _PathVisualizationPainter extends CustomPainter {
-  final Color gridColor;
-
-  _PathVisualizationPainter({required this.gridColor});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final cellSize = size.width / 5;
-    final gridPaint = Paint()
-      ..color = gridColor
-      ..style = PaintingStyle.fill;
-
-    // Draw grid
-    for (int row = 0; row < 5; row++) {
-      for (int col = 0; col < 5; col++) {
-        final rect = Rect.fromLTWH(
-          col * cellSize + 2,
-          row * cellSize + 2,
-          cellSize - 4,
-          cellSize - 4,
-        );
-        canvas.drawRRect(
-          RRect.fromRectAndRadius(rect, const Radius.circular(4)),
-          gridPaint,
-        );
-      }
-    }
-
-    // Draw path
-    final pathPaint = Paint()
-      ..color = Colors.blue
-      ..strokeWidth = 4
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round
-      ..style = PaintingStyle.stroke;
-
-    final startX = cellSize * 0.5;
-    final startY = cellSize * 4.5;
-    final midY = cellSize * 1.5;
-    final endX = cellSize * 3.5;
-
-    final path = Path()
-      ..moveTo(startX, startY)
-      ..lineTo(startX, midY)
-      ..lineTo(endX, midY);
-
-    canvas.drawPath(path, pathPaint);
-
-    // Start point
-    canvas.drawCircle(Offset(startX, startY), 4, Paint()..color = Colors.blue);
-
-    // End point (target)
-    canvas.drawCircle(Offset(endX, midY), 6, Paint()..color = Colors.blue);
-
-    // Ring around target
-    canvas.drawCircle(
-      Offset(endX, midY),
-      10,
-      Paint()
-        ..color = Colors.blue.withValues(alpha: 0.3)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
