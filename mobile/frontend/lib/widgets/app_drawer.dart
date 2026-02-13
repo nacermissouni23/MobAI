@@ -82,11 +82,12 @@ class AppDrawer extends StatelessWidget {
                     label: 'Suggestions',
                     onTap: () => _navigate(context, AppPage.suggestions),
                   ),
-                  _MenuItem(
-                    icon: Icons.assignment,
-                    label: 'Tasks',
-                    onTap: () => _navigate(context, AppPage.tasks),
-                  ),
+                  if (userRole == UserRole.employee)
+                    _MenuItem(
+                      icon: Icons.assignment,
+                      label: 'Tasks',
+                      onTap: () => _navigate(context, AppPage.tasks),
+                    ),
                   _MenuItem(
                     icon: Icons.bar_chart,
                     label: 'Reports',
