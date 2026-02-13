@@ -2,11 +2,12 @@ import 'package:equatable/equatable.dart';
 
 enum SuggestionStatus { ready, urgent, pending }
 
-enum SuggestionType { picking, storage, preparation }
+enum SuggestionType { picking, store }
 
 class Suggestion extends Equatable {
   final String id;
   final String productId;
+  final String productName;
   final String fromLocation;
   final String toLocation;
   final SuggestionStatus status;
@@ -22,6 +23,7 @@ class Suggestion extends Equatable {
   const Suggestion({
     required this.id,
     required this.productId,
+    this.productName = 'Product Name',
     required this.fromLocation,
     required this.toLocation,
     required this.status,
@@ -39,6 +41,7 @@ class Suggestion extends Equatable {
   List<Object?> get props => [
     id,
     productId,
+    productName,
     fromLocation,
     toLocation,
     status,
@@ -48,6 +51,7 @@ class Suggestion extends Equatable {
   Suggestion copyWith({
     String? id,
     String? productId,
+    String? productName,
     String? fromLocation,
     String? toLocation,
     SuggestionStatus? status,
@@ -63,6 +67,7 @@ class Suggestion extends Equatable {
     return Suggestion(
       id: id ?? this.id,
       productId: productId ?? this.productId,
+      productName: productName ?? this.productName,
       fromLocation: fromLocation ?? this.fromLocation,
       toLocation: toLocation ?? this.toLocation,
       status: status ?? this.status,
@@ -94,10 +99,8 @@ class Suggestion extends Equatable {
     switch (type) {
       case SuggestionType.picking:
         return 'PICKING';
-      case SuggestionType.storage:
-        return 'STORAGE';
-      case SuggestionType.preparation:
-        return 'PREPARATION';
+      case SuggestionType.store:
+        return 'STORE';
     }
   }
 

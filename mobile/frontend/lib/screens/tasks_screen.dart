@@ -52,7 +52,11 @@ class TasksScreen extends StatelessWidget {
         builder: (context, state) {
           if (state is TasksLoaded) {
             final tasks = state.tasks
-                .where((t) => t.status != TaskStatus.completed)
+                .where(
+                  (t) =>
+                      t.status != TaskStatus.completed &&
+                      (t.type == TaskType.pick || t.type == TaskType.store),
+                )
                 .toList();
             return ListView.builder(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),

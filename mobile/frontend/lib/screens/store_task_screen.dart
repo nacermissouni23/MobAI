@@ -7,6 +7,7 @@ import 'package:frontend/widgets/widgets.dart';
 
 /// Screen for completing a storage task.
 /// Employee confirms product stored at the target warehouse cell.
+/// Allows quantity adjustment but NO override of location/path.
 class StoreTaskScreen extends StatefulWidget {
   final WarehouseTask task;
   const StoreTaskScreen({super.key, required this.task});
@@ -17,12 +18,17 @@ class StoreTaskScreen extends StatefulWidget {
 
 class _StoreTaskScreenState extends State<StoreTaskScreen> {
   late int _quantity;
-  bool _confirmed = false;
 
   @override
   void initState() {
     super.initState();
     _quantity = widget.task.quantity;
+  }
+
+  void _handleValidate() {
+    // Logic to complete the task
+    context.read<TasksCubit>().completeTask(widget.task.id);
+    Navigator.of(context).pop();
   }
 
   @override
@@ -36,311 +42,321 @@ class _StoreTaskScreenState extends State<StoreTaskScreen> {
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 16),
-                  // Task info header
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.05),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: AppColors.primary.withValues(alpha: 0.2),
-                      ),
-                    ),
-                    child: Column(
-                      children: [
-                        const Icon(
-                          Icons.inventory_2,
-                          color: AppColors.primary,
-                          size: 48,
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          'STORAGE TASK',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.primary.withValues(alpha: 0.7),
-                            letterSpacing: 2,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          widget.task.id,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                            fontFamily: 'monospace',
-                            color: AppColors.textMain,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  // Product ID
-                  Text(
-                    'PRODUCT ID',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.primary.withValues(alpha: 0.7),
-                      letterSpacing: 2,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    widget.task.productId ?? '—',
-                    style: const TextStyle(
-                      fontSize: 36,
-                      fontWeight: FontWeight.w700,
-                      fontFamily: 'monospace',
-                      color: AppColors.textMain,
-                    ),
-                  ),
+                  // Header Info
+                  _buildHeaderInfo(),
                   const SizedBox(height: 24),
-                  // From → To locations
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _locationCard(
-                          'FROM',
-                          widget.task.fromLocation ?? 'Receiving',
-                          Icons.input,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: Icon(
-                          Icons.arrow_forward,
-                          color: AppColors.primary.withValues(alpha: 0.4),
-                        ),
-                      ),
-                      Expanded(
-                        child: _locationCard(
-                          'STORE AT',
-                          widget.task.toLocation ?? widget.task.location,
-                          Icons.location_on,
-                        ),
-                      ),
-                    ],
-                  ),
+
+                  // Location Info (From -> To)
+                  _buildLocationSection(),
                   const SizedBox(height: 24),
-                  // Quantity
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: AppColors.primary.withValues(alpha: 0.1),
-                      ),
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          'QUANTITY TO STORE',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.primary,
-                            letterSpacing: 2,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                if (_quantity > 1) setState(() => _quantity--);
-                              },
-                              child: Container(
-                                width: 56,
-                                height: 56,
-                                decoration: BoxDecoration(
-                                  color: AppColors.primary.withValues(
-                                    alpha: 0.1,
-                                  ),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: const Icon(
-                                  Icons.remove,
-                                  color: AppColors.primary,
-                                  size: 24,
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 100,
-                              child: Center(
-                                child: Text(
-                                  _quantity.toString(),
-                                  style: const TextStyle(
-                                    fontSize: 48,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () => setState(() => _quantity++),
-                              child: Container(
-                                width: 56,
-                                height: 56,
-                                decoration: BoxDecoration(
-                                  color: AppColors.primary,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: const Icon(
-                                  Icons.add,
-                                  color: Colors.white,
-                                  size: 24,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  // Instructions
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.amber.shade50,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.amber.shade200),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.info_outline, color: Colors.amber.shade700),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            'Place the product at the specified storage location and confirm below.',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.amber.shade800,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  // Confirmation checkbox
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: _confirmed
-                            ? AppColors.primary
-                            : Colors.grey.shade200,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Checkbox(
-                          value: _confirmed,
-                          onChanged: (val) =>
-                              setState(() => _confirmed = val ?? false),
-                          activeColor: AppColors.primary,
-                        ),
-                        Expanded(
-                          child: Text(
-                            'I confirm the product has been stored at the designated location.',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: _confirmed
-                                  ? AppColors.textMain
-                                  : Colors.grey.shade500,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+
+                  // Visualization (Grid placeholder as requested to match suggestion storage view)
+                  _buildGridSection(),
                 ],
               ),
             ),
           ),
-          // Bottom validate button
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              border: Border(
-                top: BorderSide(
+          // Footer
+          _buildBottomBar(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeaderInfo() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.neutralBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
                   color: AppColors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Text(
+                  'STORE',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.primary,
+                  ),
                 ),
               ),
+              _StatusBadge(status: widget.task.status),
+            ],
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'PRODUCT ID',
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textSecondary,
+              letterSpacing: 1,
             ),
-            child: SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton.icon(
-                onPressed: _confirmed
-                    ? () {
-                        context.read<TasksCubit>().completeTask(widget.task.id);
-                        Navigator.of(context).pop();
-                      }
-                    : null,
-                icon: const Icon(Icons.check_circle),
-                label: const Text('VALIDATE STORAGE'),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            widget.task.productId ?? '—',
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textMain,
+            ),
+          ),
+          const SizedBox(height: 16),
+          const Divider(),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'QUANTITY',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textSecondary,
+                  letterSpacing: 1,
+                ),
               ),
-            ),
+              _buildQuantityEditor(),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _locationCard(String label, String location, IconData icon) {
+  Widget _buildQuantityEditor() {
+    return Row(
+      children: [
+        IconButton(
+          onPressed: () {
+            if (_quantity > 1) setState(() => _quantity--);
+          },
+          icon: const Icon(Icons.remove_circle_outline),
+        ),
+        SizedBox(
+          width: 40,
+          child: Center(
+            child: Text(
+              '$_quantity',
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: AppColors.primary,
+              ),
+            ),
+          ),
+        ),
+        IconButton(
+          onPressed: () => setState(() => _quantity++),
+          icon: const Icon(Icons.add_circle_outline),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLocationSection() {
+    return Row(
+      children: [
+        Expanded(
+          child: _LocationCard(
+            label: 'FROM LOCATION',
+            value: widget.task.fromLocation ?? 'Unknown',
+            icon: Icons.upload_file,
+          ),
+        ),
+        const SizedBox(width: 12),
+        const Icon(Icons.arrow_forward, color: AppColors.primary),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _LocationCard(
+            label: 'TO DESTINATION',
+            value: widget.task.toLocation ?? 'Unknown',
+            icon: Icons.download,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGridSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'PATH VISUALIZATION',
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textSecondary,
+            letterSpacing: 1,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          height: 300,
+          decoration: BoxDecoration(
+            color: Colors.blue.shade50,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.grey.shade300),
+          ),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.grid_on, size: 48, color: Colors.grey.shade400),
+                const SizedBox(height: 16),
+                const Text(
+                  'Storage Location Map',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBottomBar() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.surface,
+        border: Border(
+          top: BorderSide(color: AppColors.primary.withValues(alpha: 0.1)),
+        ),
+      ),
+      child: SizedBox(
+        height: 56,
+        width: double.infinity,
+        child: ElevatedButton(
+          onPressed: _handleValidate,
+          child: const Text('VALIDATE'),
+        ),
+      ),
+    );
+  }
+}
+
+class _LocationCard extends StatelessWidget {
+  final String label;
+  final String value;
+  final IconData icon;
+
+  const _LocationCard({
+    required this.label,
+    required this.value,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.primary.withValues(alpha: 0.1)),
+        border: Border.all(color: AppColors.neutralBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(
-                icon,
-                size: 14,
-                color: AppColors.primary.withValues(alpha: 0.6),
-              ),
-              const SizedBox(width: 4),
+              Icon(icon, size: 14, color: AppColors.textSecondary),
+              const SizedBox(width: 6),
               Text(
                 label,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.primary.withValues(alpha: 0.6),
-                  letterSpacing: 1,
+                  color: AppColors.textSecondary,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
           Text(
-            location,
+            value,
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              fontFamily: 'monospace',
               color: AppColors.textMain,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatusBadge extends StatelessWidget {
+  final TaskStatus status;
+  const _StatusBadge({required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    Color color;
+    String label;
+    IconData icon;
+
+    switch (status) {
+      case TaskStatus.completed:
+        color = AppColors.successGreen;
+        label = 'COMPLETED';
+        icon = Icons.check_circle;
+        break;
+      case TaskStatus.inProgress:
+        color = AppColors.primary;
+        label = 'IN PROGRESS';
+        icon = Icons.timer;
+        break;
+      case TaskStatus.pending:
+        color = AppColors.warning;
+        label = 'PENDING';
+        icon = Icons.schedule;
+        break;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: color,
             ),
           ),
         ],
