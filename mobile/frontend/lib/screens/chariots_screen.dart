@@ -34,10 +34,7 @@ class _ChariotsScreenState extends State<ChariotsScreen> {
                 ? state.chariots
                 : state.chariots.where((c) {
                     final q = _searchQuery.toLowerCase();
-                    return c.id.toLowerCase().contains(q) ||
-                        c.name.toLowerCase().contains(q) ||
-                        c.statusLabel.toLowerCase().contains(q) ||
-                        (c.location?.toLowerCase().contains(q) ?? false);
+                    return c.id.toLowerCase().contains(q);
                   }).toList();
             return Stack(
               children: [
@@ -49,7 +46,7 @@ class _ChariotsScreenState extends State<ChariotsScreen> {
                       child: TextField(
                         onChanged: (val) => setState(() => _searchQuery = val),
                         decoration: InputDecoration(
-                          hintText: 'Search ID, Status or Zone...',
+                          hintText: 'Search Chariot ID...',
                           prefixIcon: const Icon(
                             Icons.search,
                             color: AppColors.primary,
@@ -148,36 +145,6 @@ class _ChariotCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isOffline = chariot.status == ChariotStatus.offline;
-    final isInUse = chariot.status == ChariotStatus.inUse;
-
-    Color statusBg;
-    Color statusText;
-    Color statusBorder;
-    if (isOffline) {
-      statusBg = Colors.grey.shade200;
-      statusText = Colors.grey.shade600;
-      statusBorder = Colors.grey.shade300;
-    } else if (isInUse) {
-      statusBg = AppColors.primary.withValues(alpha: 0.1);
-      statusText = AppColors.primary;
-      statusBorder = AppColors.primary.withValues(alpha: 0.2);
-    } else {
-      statusBg = const Color(0xFFDCFCE7);
-      statusText = const Color(0xFF15803D);
-      statusBorder = const Color(0xFFBBF7D0);
-    }
-
-    String details;
-    if (isInUse) {
-      details =
-          'User: ${chariot.currentUser} • ${chariot.location} • ${chariot.details}';
-    } else if (isOffline) {
-      details = chariot.details ?? '';
-    } else {
-      details = 'Location: ${chariot.location} • ${chariot.details}';
-    }
-
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: GestureDetector(
@@ -187,109 +154,96 @@ class _ChariotCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: isOffline ? Colors.grey.shade50 : AppColors.surface,
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: isOffline
-                  ? Colors.grey.shade200
-                  : AppColors.primary.withValues(alpha: 0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               width: 2,
             ),
-            boxShadow: isOffline
-                ? []
-                : [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.02),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: chariot.isActive
+                      ? AppColors.primary.withValues(alpha: 0.1)
+                      : Colors.grey.shade200,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  Icons.shopping_cart,
+                  color: chariot.isActive ? AppColors.primary : Colors.grey,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          chariot.id,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textMain,
+                            fontFamily: 'monospace',
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: chariot.isActive
+                                ? const Color(0xFFDCFCE7)
+                                : Colors.grey.shade200,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: chariot.isActive
+                                  ? const Color(0xFFBBF7D0)
+                                  : Colors.grey.shade300,
+                            ),
+                          ),
+                          child: Text(
+                            chariot.isActive ? 'ACTIVE' : 'INACTIVE',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w900,
+                              color: chariot.isActive
+                                  ? const Color(0xFF15803D)
+                                  : Colors.grey.shade600,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      chariot.isActive ? 'Active' : 'Inactive',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.primary.withValues(alpha: 0.6),
+                      ),
                     ),
                   ],
-          ),
-          child: Opacity(
-            opacity: isOffline ? 0.7 : 1.0,
-            child: Row(
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: isOffline
-                        ? Colors.grey.shade200
-                        : isInUse
-                        ? AppColors.primary
-                        : AppColors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    isOffline
-                        ? Icons.build
-                        : isInUse
-                        ? Icons.person_pin_circle
-                        : Icons.shopping_cart,
-                    color: isOffline
-                        ? Colors.grey.shade500
-                        : isInUse
-                        ? Colors.white
-                        : AppColors.primary,
-                    size: 24,
-                  ),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            chariot.name,
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                              color: isOffline
-                                  ? Colors.grey.shade500
-                                  : AppColors.textMain,
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 3,
-                            ),
-                            decoration: BoxDecoration(
-                              color: statusBg,
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: statusBorder),
-                            ),
-                            child: Text(
-                              chariot.statusLabel,
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w900,
-                                color: statusText,
-                                letterSpacing: -0.5,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        details,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          color: isOffline
-                              ? Colors.grey.shade400
-                              : AppColors.primary.withValues(alpha: 0.6),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
