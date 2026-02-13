@@ -45,7 +45,9 @@ class WarehouseApp extends StatelessWidget {
             return PickScreen(task: task);
           },
           '/pick-2': (context) {
-            final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+            final args =
+                ModalRoute.of(context)!.settings.arguments
+                    as Map<String, dynamic>;
             return PickValidateScreen(
               task: args['task'] as WarehouseTask,
               pickedQuantity: args['pickedQuantity'] as int,

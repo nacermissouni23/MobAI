@@ -154,7 +154,10 @@ class _SuggestionDetailsScreenState extends State<SuggestionDetailsScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
@@ -254,10 +257,10 @@ class _SuggestionDetailsScreenState extends State<SuggestionDetailsScreen> {
     return Row(
       children: [
         IconButton(
-           onPressed: () {
-             if (_quantity > 1) setState(() => _quantity--);
-           },
-           icon: const Icon(Icons.remove_circle_outline),
+          onPressed: () {
+            if (_quantity > 1) setState(() => _quantity--);
+          },
+          icon: const Icon(Icons.remove_circle_outline),
         ),
         SizedBox(
           width: 40,
@@ -273,8 +276,8 @@ class _SuggestionDetailsScreenState extends State<SuggestionDetailsScreen> {
           ),
         ),
         IconButton(
-           onPressed: () => setState(() => _quantity++),
-           icon: const Icon(Icons.add_circle_outline),
+          onPressed: () => setState(() => _quantity++),
+          icon: const Icon(Icons.add_circle_outline),
         ),
       ],
     );
@@ -333,16 +336,18 @@ class _SuggestionDetailsScreenState extends State<SuggestionDetailsScreen> {
               ),
             ),
             if (_isOverriding)
-               TextButton.icon(
-                 onPressed: () {
-                   // Mock functionality for editing path
-                   ScaffoldMessenger.of(context).showSnackBar(
-                     const SnackBar(content: Text('Path editor would open here')),
-                   );
-                 },
-                 icon: const Icon(Icons.edit_road, size: 16),
-                 label: const Text('Edit Path'),
-               ),
+              TextButton.icon(
+                onPressed: () {
+                  // Mock functionality for editing path
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Path editor would open here'),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.edit_road, size: 16),
+                label: const Text('Edit Path'),
+              ),
           ],
         ),
         const SizedBox(height: 12),
@@ -351,7 +356,10 @@ class _SuggestionDetailsScreenState extends State<SuggestionDetailsScreen> {
           child: PageView(
             children: [
               _buildGridCard('Product Location (Floor)', Colors.blue.shade50),
-              _buildGridCard('Destination (Ground Floor)', Colors.green.shade50),
+              _buildGridCard(
+                'Destination (Ground Floor)',
+                Colors.green.shade50,
+              ),
             ],
           ),
         ),
@@ -360,16 +368,16 @@ class _SuggestionDetailsScreenState extends State<SuggestionDetailsScreen> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-               Icon(Icons.circle, size: 8, color: AppColors.primary),
-               SizedBox(width: 4),
-               Icon(Icons.circle, size: 8, color: Colors.grey),
+              Icon(Icons.circle, size: 8, color: AppColors.primary),
+              SizedBox(width: 4),
+              Icon(Icons.circle, size: 8, color: Colors.grey),
             ],
           ),
         ),
         const Center(
           child: Text(
-            'Swipe to view destination', 
-            style: TextStyle(fontSize: 10, color: Colors.grey)
+            'Swipe to view destination',
+            style: TextStyle(fontSize: 10, color: Colors.grey),
           ),
         ),
       ],
@@ -400,10 +408,7 @@ class _SuggestionDetailsScreenState extends State<SuggestionDetailsScreen> {
             const SizedBox(height: 8),
             const Text(
               'Grid Map Placeholder',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey,
-              ),
+              style: TextStyle(fontSize: 12, color: Colors.grey),
             ),
           ],
         ),

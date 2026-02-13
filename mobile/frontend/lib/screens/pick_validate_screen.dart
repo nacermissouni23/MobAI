@@ -17,9 +17,9 @@ class PickValidateScreen extends StatelessWidget {
 
   void _handleValidate(BuildContext context) {
     // Complete the task with the picked quantity
-    context.read<TasksCubit>().completeTask(task.id); 
+    context.read<TasksCubit>().completeTask(task.id);
     // Pop back to the main list (pop until first route or specific logic)
-    Navigator.of(context).popUntil((route) => route.isFirst); 
+    Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
   @override
@@ -34,7 +34,7 @@ class PickValidateScreen extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                   const SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   // Product Identity
                   const Text(
                     'PRODUCT IDENTITY',
@@ -56,7 +56,7 @@ class PickValidateScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  
+
                   // Quantity To Pick
                   _buildQuantityDisplay(),
                   const SizedBox(height: 24),
@@ -88,7 +88,10 @@ class PickValidateScreen extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
-                  textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  textStyle: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -132,8 +135,8 @@ class PickValidateScreen extends StatelessWidget {
                   color: AppColors.textMain,
                 ),
               ),
-               const SizedBox(width: 8),
-               const Text(
+              const SizedBox(width: 8),
+              const Text(
                 'UNITS',
                 style: TextStyle(
                   fontSize: 12,
@@ -213,7 +216,9 @@ class PickValidateScreen extends StatelessWidget {
                 ),
               ),
               Text(
-                 location.contains(',') ? location.split(',').last.trim() : 'A-12', 
+                location.contains(',')
+                    ? location.split(',').last.trim()
+                    : 'A-12',
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -264,17 +269,31 @@ class PickValidateScreen extends StatelessWidget {
 
                 return Container(
                   decoration: BoxDecoration(
-                    color: isTarget 
-                        ? AppColors.primary 
-                        : (isStart ? AppColors.primary.withValues(alpha: 0.2) : AppColors.primary.withValues(alpha: 0.05)),
+                    color: isTarget
+                        ? AppColors.primary
+                        : (isStart
+                              ? AppColors.primary.withValues(alpha: 0.2)
+                              : AppColors.primary.withValues(alpha: 0.05)),
                     borderRadius: BorderRadius.circular(4),
                     border: Border.all(
-                       color: isTarget ? AppColors.primary : AppColors.primary.withValues(alpha: 0.1),
-                    )
+                      color: isTarget
+                          ? AppColors.primary
+                          : AppColors.primary.withValues(alpha: 0.1),
+                    ),
                   ),
-                  child: isTarget 
-                      ? const Icon(Icons.inventory_2, color: Colors.white, size: 20)
-                      : (isStart ? const Icon(Icons.person_pin_circle, color: AppColors.primary, size: 20) : null),
+                  child: isTarget
+                      ? const Icon(
+                          Icons.inventory_2,
+                          color: Colors.white,
+                          size: 20,
+                        )
+                      : (isStart
+                            ? const Icon(
+                                Icons.person_pin_circle,
+                                color: AppColors.primary,
+                                size: 20,
+                              )
+                            : null),
                 );
               },
             ),

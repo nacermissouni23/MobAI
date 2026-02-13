@@ -47,7 +47,7 @@ class _StoreTaskScreenState extends State<StoreTaskScreen> {
                   // Header Info
                   _buildHeaderInfo(),
                   const SizedBox(height: 24),
-                  
+
                   // Location Info (From -> To)
                   _buildLocationSection(),
                   const SizedBox(height: 24),
@@ -80,7 +80,10 @@ class _StoreTaskScreenState extends State<StoreTaskScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
@@ -143,10 +146,10 @@ class _StoreTaskScreenState extends State<StoreTaskScreen> {
     return Row(
       children: [
         IconButton(
-           onPressed: () {
-             if (_quantity > 1) setState(() => _quantity--);
-           },
-           icon: const Icon(Icons.remove_circle_outline),
+          onPressed: () {
+            if (_quantity > 1) setState(() => _quantity--);
+          },
+          icon: const Icon(Icons.remove_circle_outline),
         ),
         SizedBox(
           width: 40,
@@ -162,8 +165,8 @@ class _StoreTaskScreenState extends State<StoreTaskScreen> {
           ),
         ),
         IconButton(
-           onPressed: () => setState(() => _quantity++),
-           icon: const Icon(Icons.add_circle_outline),
+          onPressed: () => setState(() => _quantity++),
+          icon: const Icon(Icons.add_circle_outline),
         ),
       ],
     );
