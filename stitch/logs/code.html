@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Warehouse Logs</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Roboto+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0b7976",
+                        "background-light": "#f6f8f8",
+                        "background-dark": "#102221",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "mono": ["Roboto Mono", "monospace"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .mono-code {
+            font-family: 'Roboto Mono', monospace;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-[#111818] min-h-screen">
+<!-- Top Bar -->
+<header class="sticky top-0 z-50 bg-white dark:bg-background-dark border-b border-primary/10 px-4 py-3 flex items-center justify-between">
+<button class="text-primary p-2 hover:bg-primary/10 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-2xl">menu</span>
+</button>
+<h1 class="text-[#111818] dark:text-white text-lg font-bold leading-tight tracking-wider font-display">LOGS</h1>
+<div class="flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10">
+<span class="size-2 rounded-full bg-primary"></span>
+<span class="text-primary text-xs font-bold tracking-widest uppercase">Synced</span>
+</div>
+</header>
+<main class="max-w-3xl mx-auto pb-10">
+<!-- Filters Section -->
+<section class="p-4 space-y-4">
+<div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+<button class="flex h-12 shrink-0 items-center justify-center rounded-lg bg-primary px-6 text-white font-medium shadow-sm transition-transform active:scale-95">
+                    All
+                </button>
+<button class="flex h-12 shrink-0 items-center justify-center rounded-lg bg-white dark:bg-background-dark border border-primary/20 px-6 text-[#111818] dark:text-white font-medium hover:bg-primary/5 transition-colors">
+                    Stock
+                </button>
+<button class="flex h-12 shrink-0 items-center justify-center rounded-lg bg-white dark:bg-background-dark border border-primary/20 px-6 text-[#111818] dark:text-white font-medium hover:bg-primary/5 transition-colors">
+                    Operation
+                </button>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold text-primary/60 uppercase tracking-widest px-1">Time Range</span>
+<div class="h-px flex-1 bg-primary/10"></div>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 h-12 items-center justify-center rounded-lg bg-primary/10 border border-primary/20 px-4 text-primary font-bold transition-colors">
+                    Today
+                </button>
+<button class="flex-1 h-12 items-center justify-center rounded-lg bg-white dark:bg-background-dark border border-primary/10 px-4 text-[#111818] dark:text-white font-medium hover:bg-primary/5 transition-colors">
+                    7 days
+                </button>
+</div>
+</section>
+<!-- Log List -->
+<section class="px-4 space-y-3">
+<h2 class="text-[#111818] dark:text-white text-sm font-bold uppercase tracking-widest pt-4 pb-2">Activity Feed</h2>
+<!-- Log Entry 1 -->
+<div class="bg-white dark:bg-background-dark rounded-xl p-4 shadow-sm border border-primary/5 flex flex-col gap-3">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-2">
+<div class="p-2 rounded-lg bg-primary/10 text-primary">
+<span class="material-symbols-outlined text-xl">history_edu</span>
+</div>
+<div>
+<p class="text-sm font-bold text-primary">10:00 AM</p>
+<p class="text-xs text-[#111818]/60 dark:text-white/60">Just now</p>
+</div>
+</div>
+<div class="px-2 py-1 rounded bg-background-light dark:bg-white/5 border border-primary/10">
+<span class="mono-code text-xs font-bold text-primary uppercase">Override</span>
+</div>
+</div>
+<div class="space-y-1">
+<p class="text-[#111818] dark:text-white font-semibold">Supervisor Youssef</p>
+<p class="text-sm text-[#111818]/80 dark:text-white/80 leading-relaxed">
+                        Override AI suggestion for location assignment.
+                    </p>
+</div>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-[10px] font-bold text-[#111818]/40 dark:text-white/40 uppercase tracking-tighter">Reference ID:</span>
+<span class="mono-code px-2 py-0.5 bg-background-light dark:bg-white/5 rounded text-xs font-bold text-primary">XC-992</span>
+</div>
+</div>
+<!-- Log Entry 2 -->
+<div class="bg-white dark:bg-background-dark rounded-xl p-4 shadow-sm border border-primary/5 flex flex-col gap-3">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-2">
+<div class="p-2 rounded-lg bg-primary/10 text-primary">
+<span class="material-symbols-outlined text-xl">check_circle</span>
+</div>
+<div>
+<p class="text-sm font-bold text-primary">11:15 AM</p>
+<p class="text-xs text-[#111818]/60 dark:text-white/60">1h ago</p>
+</div>
+</div>
+<div class="px-2 py-1 rounded bg-background-light dark:bg-white/5 border border-primary/10">
+<span class="mono-code text-xs font-bold text-primary uppercase">Picking</span>
+</div>
+</div>
+<div class="space-y-1">
+<p class="text-[#111818] dark:text-white font-semibold">Employee Ahmed</p>
+<p class="text-sm text-[#111818]/80 dark:text-white/80 leading-relaxed">
+                        Validated picking sequence completion for shipment.
+                    </p>
+</div>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-[10px] font-bold text-[#111818]/40 dark:text-white/40 uppercase tracking-tighter">Order ID:</span>
+<span class="mono-code px-2 py-0.5 bg-background-light dark:bg-white/5 rounded text-xs font-bold text-primary">ORD-55</span>
+</div>
+</div>
+<!-- Log Entry 3 -->
+<div class="bg-white dark:bg-background-dark rounded-xl p-4 shadow-sm border border-primary/5 flex flex-col gap-3">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-2">
+<div class="p-2 rounded-lg bg-primary/10 text-primary">
+<span class="material-symbols-outlined text-xl">inventory_2</span>
+</div>
+<div>
+<p class="text-sm font-bold text-primary">12:30 PM</p>
+<p class="text-xs text-[#111818]/60 dark:text-white/60">2h ago</p>
+</div>
+</div>
+<div class="px-2 py-1 rounded bg-background-light dark:bg-white/5 border border-primary/10">
+<span class="mono-code text-xs font-bold text-primary uppercase">Stock</span>
+</div>
+</div>
+<div class="space-y-1">
+<p class="text-[#111818] dark:text-white font-semibold">Operator Sarah</p>
+<p class="text-sm text-[#111818]/80 dark:text-white/80 leading-relaxed">
+                        Inventory adjustment after cycle count mismatch.
+                    </p>
+</div>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-[10px] font-bold text-[#111818]/40 dark:text-white/40 uppercase tracking-tighter">SKU:</span>
+<span class="mono-code px-2 py-0.5 bg-background-light dark:bg-white/5 rounded text-xs font-bold text-primary">SKU-8821-B</span>
+</div>
+</div>
+<!-- Log Entry 4 -->
+<div class="bg-white dark:bg-background-dark rounded-xl p-4 shadow-sm border border-primary/5 flex flex-col gap-3">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-2">
+<div class="p-2 rounded-lg bg-primary/10 text-primary">
+<span class="material-symbols-outlined text-xl">move_up</span>
+</div>
+<div>
+<p class="text-sm font-bold text-primary">01:45 PM</p>
+<p class="text-xs text-[#111818]/60 dark:text-white/60">3h ago</p>
+</div>
+</div>
+<div class="px-2 py-1 rounded bg-background-light dark:bg-white/5 border border-primary/10">
+<span class="mono-code text-xs font-bold text-primary uppercase">Relocation</span>
+</div>
+</div>
+<div class="space-y-1">
+<p class="text-[#111818] dark:text-white font-semibold">Employee Mike</p>
+<p class="text-sm text-[#111818]/80 dark:text-white/80 leading-relaxed">
+                        Pallet relocation from Receiving to Zone A-4.
+                    </p>
+</div>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-[10px] font-bold text-[#111818]/40 dark:text-white/40 uppercase tracking-tighter">Location:</span>
+<span class="mono-code px-2 py-0.5 bg-background-light dark:bg-white/5 rounded text-xs font-bold text-primary">BIN-404-X</span>
+</div>
+</div>
+</section>
+<!-- Empty state placeholder (Hidden) -->
+<section class="hidden flex flex-col items-center justify-center py-20 px-4 text-center">
+<div class="size-20 bg-primary/5 rounded-full flex items-center justify-center mb-4">
+<span class="material-symbols-outlined text-4xl text-primary/40">search_off</span>
+</div>
+<h3 class="text-[#111818] dark:text-white font-bold text-lg">No logs found</h3>
+<p class="text-[#111818]/60 dark:text-white/60 max-w-xs mx-auto mt-2">
+                We couldn't find any log entries for the selected filters.
+            </p>
+</section>
+</main>
+</body></html>

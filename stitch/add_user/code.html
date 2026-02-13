@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Add User - Industrial UI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0b7976",
+                        "background-light": "#f7f8f9",
+                        "background-dark": "#102221",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .form-input-focus:focus {
+            border-color: #0b7976;
+            ring-color: #0b7976;
+        }
+        /* Custom select arrow for industrial look */
+        .custom-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.75rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-[#111818] dark:text-white min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="sticky top-0 z-50 bg-white dark:bg-background-dark border-b border-gray-200 dark:border-primary/20">
+<div class="flex items-center justify-between px-4 h-16 max-w-md mx-auto">
+<button aria-label="Menu" class="flex items-center justify-center size-10 text-primary dark:text-primary/80">
+<span class="material-symbols-outlined text-[28px]">menu</span>
+</button>
+<h1 class="text-[#111818] dark:text-white text-lg font-bold tracking-wider uppercase flex-1 text-center">
+                ADD USER
+            </h1>
+<div class="flex items-center gap-1.5 px-2 py-1 bg-primary/5 dark:bg-primary/20 rounded-full">
+<span class="material-symbols-outlined text-[14px] text-primary fill-1">circle</span>
+<span class="text-primary dark:text-primary/90 text-xs font-bold tracking-widest">SYNCED</span>
+</div>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 w-full max-w-md mx-auto p-4 flex flex-col gap-6">
+<!-- Form Container -->
+<div class="flex flex-col gap-5 mt-2">
+<!-- Full Name Field -->
+<div class="flex flex-col gap-1.5">
+<label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest px-1">
+                    Full Name
+                </label>
+<input class="w-full h-14 px-4 bg-white dark:bg-gray-900 border border-gray-300 dark:border-primary/30 rounded-lg text-base focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all placeholder:text-gray-400" placeholder="Enter full name" type="text"/>
+</div>
+<!-- ID Field -->
+<div class="flex flex-col gap-1.5">
+<label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest px-1">
+                    ID
+                </label>
+<input class="w-full h-14 px-4 bg-white dark:bg-gray-900 border border-gray-300 dark:border-primary/30 rounded-lg text-base focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all placeholder:text-gray-400" placeholder="Enter ID number" type="text"/>
+</div>
+<!-- Role Selection Field -->
+<div class="flex flex-col gap-1.5">
+<label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest px-1">
+                    Role
+                </label>
+<select class="custom-select w-full h-14 px-4 bg-white dark:bg-gray-900 border border-gray-300 dark:border-primary/30 rounded-lg text-base focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all text-[#111818] dark:text-white">
+<option disabled="" selected="" value="">Select role</option>
+<option value="admin">Administrator</option>
+<option value="operator">Operator</option>
+<option value="manager">Manager</option>
+<option value="viewer">Viewer</option>
+</select>
+</div>
+<!-- Password Field -->
+<div class="flex flex-col gap-1.5">
+<label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest px-1">
+                    Password
+                </label>
+<div class="relative">
+<input class="w-full h-14 pl-4 pr-12 bg-white dark:bg-gray-900 border border-gray-300 dark:border-primary/30 rounded-lg text-base focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all placeholder:text-gray-400" placeholder="Enter password" type="password"/>
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 flex items-center justify-center size-8">
+<span class="material-symbols-outlined">visibility_off</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Footer Actions -->
+<div class="mt-auto pt-8 flex flex-col gap-3">
+<button class="w-full h-14 bg-primary hover:bg-primary/90 text-white font-bold text-base tracking-widest rounded-lg transition-colors flex items-center justify-center uppercase">
+                SAVE
+            </button>
+<button class="w-full h-14 bg-transparent border-2 border-primary/40 hover:border-primary text-primary dark:text-primary/90 font-bold text-base tracking-widest rounded-lg transition-colors flex items-center justify-center uppercase">
+                CANCEL
+            </button>
+</div>
+</main>
+<!-- Empty Spacer for Bottom (No Nav) -->
+<div class="h-6"></div>
+</body></html>

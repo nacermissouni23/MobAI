@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pick 1 - Warehouse Task</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0b7976",
+                        "background-light": "#f6f8f8",
+                        "background-dark": "#102221",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-[#111818] min-h-screen flex flex-col">
+<!-- Header / TopAppBar -->
+<header class="bg-white dark:bg-background-dark border-b border-primary/10 px-4 py-3 flex items-center justify-between sticky top-0 z-10">
+<div class="flex items-center gap-3">
+<button class="p-2 hover:bg-primary/5 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-[#111818] dark:text-white">menu</span>
+</button>
+<h2 class="text-lg font-bold tracking-tight text-[#111818] dark:text-white">PICK 1</h2>
+</div>
+<div class="flex items-center gap-2">
+<span class="size-2 rounded-full bg-emerald-500"></span>
+<p class="text-primary text-xs font-bold tracking-wider">SYNCED</p>
+</div>
+</header>
+<main class="flex-1 flex flex-col max-w-md mx-auto w-full p-4 gap-6 pb-24">
+<!-- Product Identification Section -->
+<section class="text-center pt-4">
+<h4 class="text-primary/60 dark:text-primary/40 text-xs font-bold tracking-widest uppercase mb-1">Product ID</h4>
+<h1 class="text-5xl font-extrabold tracking-tighter text-[#111818] dark:text-white">P-99042</h1>
+</section>
+<!-- Quantity Adjustment Control -->
+<section class="bg-white dark:bg-white/5 rounded-xl p-6 shadow-sm border border-primary/5">
+<h4 class="text-center text-primary/60 dark:text-primary/40 text-xs font-bold tracking-widest uppercase mb-6">Quantity</h4>
+<div class="flex items-center justify-between gap-4 max-w-xs mx-auto">
+<button class="flex items-center justify-center size-16 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary transition-all active:scale-95">
+<span class="material-symbols-outlined text-3xl font-bold">remove</span>
+</button>
+<div class="flex-1 text-center">
+<span class="text-6xl font-bold text-[#111818] dark:text-white">15</span>
+</div>
+<button class="flex items-center justify-center size-16 rounded-xl bg-primary text-white hover:bg-primary/90 transition-all active:scale-95 shadow-md">
+<span class="material-symbols-outlined text-3xl font-bold">add</span>
+</button>
+</div>
+</section>
+<!-- Location & Map Section -->
+<section class="flex flex-col gap-4">
+<div class="flex items-center justify-between bg-white dark:bg-white/5 border border-primary/10 rounded-xl p-4">
+<div class="flex items-center gap-3">
+<div class="bg-primary/10 p-2 rounded-lg">
+<span class="material-symbols-outlined text-primary">location_on</span>
+</div>
+<div>
+<p class="text-sm text-primary/60 dark:text-primary/40 font-medium">Current Location</p>
+<p class="text-lg font-bold text-[#111818] dark:text-white">Floor 1</p>
+</div>
+</div>
+<button class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors">
+                    View Map
+                </button>
+</div>
+<!-- Path Visualization (5x5 Grid) -->
+<div class="bg-white dark:bg-white/5 rounded-xl p-6 border border-primary/10 flex flex-col items-center">
+<h4 class="text-primary/60 dark:text-primary/40 text-xs font-bold tracking-widest uppercase mb-4 self-start">Path Visualization</h4>
+<div class="relative grid grid-cols-5 grid-rows-5 gap-2 w-full aspect-square max-w-[280px]">
+<!-- Grid Cells -->
+<!-- Row 1 -->
+<div class="bg-primary/5 rounded-sm"></div><div class="bg-primary/5 rounded-sm"></div><div class="bg-primary/5 rounded-sm"></div><div class="bg-primary/5 rounded-sm"></div><div class="bg-primary/5 rounded-sm"></div>
+<!-- Row 2 -->
+<div class="bg-primary/5 rounded-sm"></div><div class="bg-primary/5 rounded-sm"></div><div class="bg-primary/5 rounded-sm"></div><div class="bg-primary/5 rounded-sm"></div><div class="bg-primary/5 rounded-sm"></div>
+<!-- Row 3 -->
+<div class="bg-primary/5 rounded-sm"></div><div class="bg-primary/5 rounded-sm"></div><div class="bg-primary/5 rounded-sm"></div><div class="bg-primary/5 rounded-sm"></div><div class="bg-primary/5 rounded-sm"></div>
+<!-- Row 4 -->
+<div class="bg-primary/5 rounded-sm"></div><div class="bg-primary/5 rounded-sm"></div><div class="bg-primary/5 rounded-sm"></div><div class="bg-primary/5 rounded-sm"></div><div class="bg-primary/5 rounded-sm"></div>
+<!-- Row 5 -->
+<div class="bg-primary/5 rounded-sm"></div><div class="bg-primary/5 rounded-sm"></div><div class="bg-primary/5 rounded-sm"></div><div class="bg-primary/5 rounded-sm"></div><div class="bg-primary/5 rounded-sm"></div>
+<!-- Path Line Overlays (Conceptual SVG) -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none" viewbox="0 0 100 100">
+<!-- Path: Start at (10, 90) -> (10, 30) -> (70, 30) -->
+<path d="M 10 90 L 10 30 L 70 30" fill="none" stroke="#3b82f6" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"></path>
+<!-- Start Point -->
+<circle cx="10" cy="90" fill="#3b82f6" r="4"></circle>
+<!-- End Point (Target) -->
+<circle cx="70" cy="30" fill="#3b82f6" r="6"></circle>
+<circle class="opacity-30" cx="70" cy="30" fill="none" r="10" stroke="#3b82f6" stroke-width="2"></circle>
+</svg>
+</div>
+<div class="mt-4 flex gap-4 text-[10px] font-bold tracking-widest uppercase text-primary/40">
+<div class="flex items-center gap-1"><span class="size-2 rounded-full bg-blue-500"></span> Start</div>
+<div class="flex items-center gap-1"><span class="size-2 rounded-full border-2 border-blue-500"></span> Target Slot</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Fixed Footer CTA -->
+<footer class="fixed bottom-0 left-0 right-0 p-4 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md">
+<div class="max-w-md mx-auto">
+<button class="w-full bg-primary hover:bg-primary/90 text-white text-lg font-bold py-4 rounded-xl shadow-lg transition-transform active:scale-[0.98] flex items-center justify-center gap-2">
+                NEXT
+                <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</footer>
+</body></html>

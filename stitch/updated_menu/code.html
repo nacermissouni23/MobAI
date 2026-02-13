@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Warehouse Execution Menu</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0b7976",
+                        "background-light": "#F7F8F9",
+                        "background-dark": "#102221",
+                        "surface": "#FFFFFF",
+                        "text-main": "#111827",
+                    },
+                    fontFamily: {
+                        "display": ["Roboto", "Inter", "sans-serif"],
+                        "body": ["Roboto", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .menu-item-min-height {
+            min-height: 52px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-main antialiased">
+<!-- Main Mobile Container -->
+<div class="relative flex h-screen w-full max-w-md mx-auto flex-col overflow-hidden bg-background-light dark:bg-background-dark">
+<!-- Top Bar -->
+<header class="flex items-center justify-between bg-surface dark:bg-slate-900 px-4 py-4 border-b border-primary/10 shadow-sm">
+<h1 class="text-[20px] font-medium leading-tight text-text-main dark:text-white">Menu</h1>
+<div class="flex items-center gap-1.5">
+<span class="flex h-2 w-2 rounded-full bg-primary"></span>
+<p class="text-[14px] font-medium text-primary tracking-wide">Synced</p>
+</div>
+</header>
+<!-- Scrollable Content Area -->
+<main class="flex-1 overflow-y-auto p-4 space-y-2">
+<!-- Home Item -->
+<a class="flex items-center justify-between bg-surface dark:bg-slate-900 px-4 menu-item-min-height rounded-lg border border-slate-100 dark:border-slate-800 active:bg-slate-50 transition-colors" href="#">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary" style="font-size: 24px;">home</span>
+<span class="text-[14px] font-normal text-text-main dark:text-slate-200">Home</span>
+</div>
+<span class="material-symbols-outlined text-slate-400" style="font-size: 20px;">chevron_right</span>
+</a>
+<!-- Users Item -->
+<a class="flex items-center justify-between bg-surface dark:bg-slate-900 px-4 menu-item-min-height rounded-lg border border-slate-100 dark:border-slate-800 active:bg-slate-50 transition-colors" href="#">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary" style="font-size: 24px;">group</span>
+<span class="text-[14px] font-normal text-text-main dark:text-slate-200">Users</span>
+</div>
+<span class="material-symbols-outlined text-slate-400" style="font-size: 20px;">chevron_right</span>
+</a>
+<!-- Warehouse Item -->
+<a class="flex items-center justify-between bg-surface dark:bg-slate-900 px-4 menu-item-min-height rounded-lg border border-slate-100 dark:border-slate-800 active:bg-slate-50 transition-colors" href="#">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary" style="font-size: 24px;">warehouse</span>
+<span class="text-[14px] font-normal text-text-main dark:text-slate-200">Warehouse</span>
+</div>
+<span class="material-symbols-outlined text-slate-400" style="font-size: 20px;">chevron_right</span>
+</a><a class="flex items-center justify-between bg-surface dark:bg-slate-900 px-4 menu-item-min-height rounded-lg border border-slate-100 dark:border-slate-800 active:bg-slate-50 transition-colors" href="#">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary" style="font-size: 24px;">inventory_2</span>
+<span class="text-[14px] font-normal text-text-main dark:text-slate-200">SKU</span>
+</div>
+<span class="material-symbols-outlined text-slate-400" style="font-size: 20px;">chevron_right</span>
+</a><a class="flex items-center justify-between bg-surface dark:bg-slate-900 px-4 menu-item-min-height rounded-lg border border-slate-100 dark:border-slate-800 active:bg-slate-50 transition-colors" href="#">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary" style="font-size: 24px;">shopping_cart</span>
+<span class="text-[14px] font-normal text-text-main dark:text-slate-200">Chariots</span>
+</div>
+<span class="material-symbols-outlined text-slate-400" style="font-size: 20px;">chevron_right</span>
+</a>
+<!-- Suggestions Item -->
+<a class="flex items-center justify-between bg-surface dark:bg-slate-900 px-4 menu-item-min-height rounded-lg border border-slate-100 dark:border-slate-800 active:bg-slate-50 transition-colors" href="#">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary" style="font-size: 24px;">lightbulb</span>
+<span class="text-[14px] font-normal text-text-main dark:text-slate-200">Suggestions</span>
+</div>
+<span class="material-symbols-outlined text-slate-400" style="font-size: 20px;">chevron_right</span>
+</a>
+<!-- Tasks Item -->
+<a class="flex items-center justify-between bg-surface dark:bg-slate-900 px-4 menu-item-min-height rounded-lg border border-slate-100 dark:border-slate-800 active:bg-slate-50 transition-colors" href="#">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary" style="font-size: 24px;">assignment</span>
+<span class="text-[14px] font-normal text-text-main dark:text-slate-200">Tasks</span>
+</div>
+<span class="material-symbols-outlined text-slate-400" style="font-size: 20px;">chevron_right</span>
+</a>
+<!-- Reports Item -->
+<a class="flex items-center justify-between bg-surface dark:bg-slate-900 px-4 menu-item-min-height rounded-lg border border-slate-100 dark:border-slate-800 active:bg-slate-50 transition-colors" href="#">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary" style="font-size: 24px;">bar_chart</span>
+<span class="text-[14px] font-normal text-text-main dark:text-slate-200">Reports</span>
+</div>
+<span class="material-symbols-outlined text-slate-400" style="font-size: 20px;">chevron_right</span>
+</a>
+<!-- Logs Item -->
+<a class="flex items-center justify-between bg-surface dark:bg-slate-900 px-4 menu-item-min-height rounded-lg border border-slate-100 dark:border-slate-800 active:bg-slate-50 transition-colors" href="#">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary" style="font-size: 24px;">history_edu</span>
+<span class="text-[14px] font-normal text-text-main dark:text-slate-200">Logs</span>
+</div>
+<span class="material-symbols-outlined text-slate-400" style="font-size: 20px;">chevron_right</span>
+</a>
+</main>
+<!-- Bottom Navbar -->
+
+<footer class="p-4 mt-auto border-t border-slate-100 dark:border-slate-800 bg-surface dark:bg-slate-900">
+<button class="w-full flex items-center justify-center gap-2 py-3 px-4 border-2 border-primary text-primary font-medium rounded-lg active:bg-primary/5 transition-colors uppercase tracking-wider text-[14px]">
+<span class="material-symbols-outlined" style="font-size: 20px;">logout</span>
+Logout
+</button>
+</footer></div>
+</body></html>
