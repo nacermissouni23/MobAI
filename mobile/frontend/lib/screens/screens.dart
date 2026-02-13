@@ -12,6 +12,7 @@ export 'users_screen.dart';
 export 'add_user_screen.dart';
 export 'edit_user_screen.dart';
 export 'new_receipt_screen.dart';
+export 'received_receipt_screen.dart';
 export 'new_delivery_screen.dart';
 export 'pick_screen.dart';
 export 'pick_validate_screen.dart';

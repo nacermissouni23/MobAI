@@ -69,6 +69,16 @@ class WarehouseApp extends StatelessWidget {
                 ModalRoute.of(context)!.settings.arguments as WarehouseTask;
             return StoreTaskScreen(task: task);
           },
+          '/received-receipt': (context) {
+            final args =
+                ModalRoute.of(context)?.settings.arguments
+                    as Map<String, dynamic>?;
+            return ReceivedReceiptScreen(
+              productName: args?['productName'] ?? '',
+              productId: args?['productId'] ?? '',
+              expectedQuantity: args?['expectedQuantity'] ?? 0,
+            );
+          },
         },
       ),
     );

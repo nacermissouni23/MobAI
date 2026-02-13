@@ -31,37 +31,12 @@ class TasksScreen extends StatelessWidget {
             final tasks = state.tasks
                 .where((t) => t.status != TaskStatus.completed)
                 .toList();
-            return Stack(
-              children: [
-                ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-                  itemCount: tasks.length,
-                  itemBuilder: (context, index) {
-                    return _TaskCard(task: tasks[index]);
-                  },
-                ),
-                // Bottom Action
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppColors.backgroundLight.withValues(alpha: 0.8),
-                    ),
-                    child: SizedBox(
-                      height: 56,
-                      child: ElevatedButton.icon(
-                        onPressed: () =>
-                            Navigator.of(context).pushNamed('/new-receipt'),
-                        icon: const Icon(Icons.input),
-                        label: const Text('RECEIVE'),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+            return ListView.builder(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+              itemCount: tasks.length,
+              itemBuilder: (context, index) {
+                return _TaskCard(task: tasks[index]);
+              },
             );
           }
           return const Center(
@@ -113,7 +88,15 @@ class _TaskCard extends StatelessWidget {
               Navigator.of(context).pushNamed('/store-task', arguments: task);
               break;
             case TaskType.receipt:
-              Navigator.of(context).pushNamed('/new-receipt', arguments: task);
+              // For employees, show received receipt verification screen
+              Navigator.of(context).pushNamed(
+                '/received-receipt',
+                arguments: {
+                  'productName': task.productId ?? 'Unknown',
+                  'productId': task.productId ?? '',
+                  'expectedQuantity': task.quantity,
+                },
+              );
               break;
           }
         },
