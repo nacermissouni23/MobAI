@@ -67,16 +67,21 @@ class _UsersScreenState extends State<UsersScreen> {
                 ),
                 // Footer Action
                 Container(
-                  padding: const EdgeInsets.all(16),
                   color: AppColors.backgroundLight,
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: ElevatedButton.icon(
-                      onPressed: () =>
-                          Navigator.of(context).pushNamed('/add-user'),
-                      icon: const Icon(Icons.person_add, size: 20),
-                      label: const Text('ADD USER'),
+                  child: SafeArea(
+                    top: false,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 56,
+                        child: ElevatedButton.icon(
+                          onPressed: () =>
+                              Navigator.of(context).pushNamed('/add-user'),
+                          icon: const Icon(Icons.person_add, size: 20),
+                          label: const Text('ADD USER'),
+                        ),
+                      ),
                     ),
                   ),
                 ),

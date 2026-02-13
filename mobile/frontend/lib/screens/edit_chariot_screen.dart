@@ -128,7 +128,6 @@ class _EditChariotScreenState extends State<EditChariotScreen> {
           ),
           // Bottom Actions
           Container(
-            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: AppColors.surface,
               border: Border(
@@ -137,21 +136,27 @@ class _EditChariotScreenState extends State<EditChariotScreen> {
                 ),
               ),
             ),
-            child: SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  context.read<ChariotsCubit>().updateChariot(
-                    widget.chariot.copyWith(
-                      id: _idController.text,
-                      isActive: _isActive,
-                    ),
-                  );
-                  Navigator.of(context).pop();
-                },
-                icon: const Icon(Icons.save),
-                label: const Text('SAVE'),
+            child: SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      context.read<ChariotsCubit>().updateChariot(
+                        widget.chariot.copyWith(
+                          id: _idController.text,
+                          isActive: _isActive,
+                        ),
+                      );
+                      Navigator.of(context).pop();
+                    },
+                    icon: const Icon(Icons.save),
+                    label: const Text('SAVE'),
+                  ),
+                ),
               ),
             ),
           ),

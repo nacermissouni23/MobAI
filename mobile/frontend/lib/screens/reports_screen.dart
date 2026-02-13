@@ -15,9 +15,16 @@ class ReportsScreen extends StatefulWidget {
 class _ReportsScreenState extends State<ReportsScreen> {
   String _selectedFilter = '7 Days';
 
+  List<Report> get _filteredReports {
+    final reports = MockData.reports;
+    if (_selectedFilter == '7 Days') return reports.take(4).toList();
+    if (_selectedFilter == '30 Days') return reports.take(7).toList();
+    return reports;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final reports = MockData.reports;
+    final reports = _filteredReports;
 
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
@@ -38,7 +45,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
-                children: ['All', '7 Days'].map((filter) {
+                children: ['All', '7 Days', '30 Days'].map((filter) {
                   final isSelected = _selectedFilter == filter;
                   return Expanded(
                     child: GestureDetector(
@@ -83,14 +90,6 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     color: AppColors.textMain.withValues(alpha: 0.7),
                   ),
                 ),
-                Text(
-                  'View All',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.primary,
-                  ),
-                ),
               ],
             ),
           ),
@@ -100,7 +99,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
               padding: EdgeInsets.zero,
               itemCount: reports.length,
               separatorBuilder: (_, __) =>
-                  Container(height: 1, color: Colors.grey.shade200),
+                  const Divider(height: 1, indent: 16, endIndent: 16),
               itemBuilder: (context, index) {
                 final report = reports[index];
                 return _ReportItem(report: report);
@@ -108,12 +107,6 @@ class _ReportsScreenState extends State<ReportsScreen> {
             ),
           ),
         ],
-      ),
-      // FAB
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        backgroundColor: AppColors.primary,
-        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }

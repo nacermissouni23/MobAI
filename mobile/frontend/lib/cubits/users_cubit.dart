@@ -60,4 +60,12 @@ class UsersCubit extends Cubit<UsersState> {
       emit(UsersLoaded(updated));
     }
   }
+
+  void deleteUser(String userId) {
+    if (state is UsersLoaded) {
+      final current = (state as UsersLoaded).users;
+      final updated = current.where((u) => u.id != userId).toList();
+      emit(UsersLoaded(updated));
+    }
+  }
 }

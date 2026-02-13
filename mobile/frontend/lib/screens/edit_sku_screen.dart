@@ -331,7 +331,6 @@ class _EditSkuScreenState extends State<EditSkuScreen> {
           ),
           // Bottom Actions
           Container(
-            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: AppColors.surface,
               border: Border(
@@ -340,54 +339,71 @@ class _EditSkuScreenState extends State<EditSkuScreen> {
                 ),
               ),
             ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: SizedBox(
-                    height: 56,
-                    child: OutlinedButton.icon(
-                      onPressed: () {
-                        context.read<SkusCubit>().deleteSku(widget.sku.id);
-                        Navigator.of(context).pop();
-                      },
-                      icon: const Icon(Icons.delete),
-                      label: const Text('DELETE'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.red,
-                        side: BorderSide(
-                          color: Colors.red.withValues(alpha: 0.5),
+            child: SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: 56,
+                        child: OutlinedButton.icon(
+                          onPressed: () async {
+                            final confirmed = await showConfirmDialog(
+                              context,
+                              title: 'Delete SKU',
+                              message:
+                                  'Are you sure you want to delete ${widget.sku.name}? This action cannot be undone.',
+                              confirmLabel: 'DELETE',
+                              isDestructive: true,
+                            );
+                            if (confirmed && context.mounted) {
+                              context.read<SkusCubit>().deleteSku(
+                                widget.sku.id,
+                              );
+                              Navigator.of(context).pop();
+                            }
+                          },
+                          icon: const Icon(Icons.delete),
+                          label: const Text('DELETE'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.red,
+                            side: BorderSide(
+                              color: Colors.red.withValues(alpha: 0.5),
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  flex: 2,
-                  child: SizedBox(
-                    height: 56,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        context.read<SkusCubit>().updateSku(
-                          widget.sku.copyWith(
-                            name: _nameController.text,
-                            skuCode: _codeController.text,
-                            quantity:
-                                int.tryParse(_quantityController.text) ?? 0,
-                            category: _categorieController.text,
-                            weight:
-                                double.tryParse(_poidsController.text) ??
-                                widget.sku.weight,
-                          ),
-                        );
-                        Navigator.of(context).pop();
-                      },
-                      icon: const Icon(Icons.save),
-                      label: const Text('SAVE'),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: SizedBox(
+                        height: 56,
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            context.read<SkusCubit>().updateSku(
+                              widget.sku.copyWith(
+                                name: _nameController.text,
+                                skuCode: _codeController.text,
+                                quantity:
+                                    int.tryParse(_quantityController.text) ?? 0,
+                                category: _categorieController.text,
+                                weight:
+                                    double.tryParse(_poidsController.text) ??
+                                    widget.sku.weight,
+                              ),
+                            );
+                            Navigator.of(context).pop();
+                          },
+                          icon: const Icon(Icons.save),
+                          label: const Text('SAVE'),
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ],

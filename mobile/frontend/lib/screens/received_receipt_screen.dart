@@ -275,54 +275,61 @@ class _ReceivedReceiptScreenState extends State<ReceivedReceiptScreen> {
 
           // Validate Button
           Container(
-            padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: AppColors.surface,
               border: Border(top: BorderSide(color: Colors.grey.shade200)),
             ),
-            child: SizedBox(
-              width: double.infinity,
-              height: 64,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop({
-                    'productName': widget.productName,
-                    'productId': widget.productId,
-                    'expectedQuantity': widget.expectedQuantity,
-                    'receivedQuantity': _receivedQuantity,
-                    'matched': _quantityMatches,
-                  });
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _quantityMatches
-                      ? AppColors.primary
-                      : AppColors.warning,
-                  elevation: 8,
-                  shadowColor:
-                      (_quantityMatches ? AppColors.primary : AppColors.warning)
-                          .withValues(alpha: 0.2),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      _quantityMatches ? 'VALIDATE' : 'CONFIRM MISMATCH',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 2,
-                        color: Colors.white,
-                      ),
+            child: SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 64,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop({
+                        'productName': widget.productName,
+                        'productId': widget.productId,
+                        'expectedQuantity': widget.expectedQuantity,
+                        'receivedQuantity': _receivedQuantity,
+                        'matched': _quantityMatches,
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _quantityMatches
+                          ? AppColors.primary
+                          : AppColors.warning,
+                      elevation: 8,
+                      shadowColor:
+                          (_quantityMatches
+                                  ? AppColors.primary
+                                  : AppColors.warning)
+                              .withValues(alpha: 0.2),
                     ),
-                    const SizedBox(width: 8),
-                    Icon(
-                      _quantityMatches
-                          ? Icons.check_circle
-                          : Icons.warning_amber_rounded,
-                      size: 24,
-                      color: Colors.white,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          _quantityMatches ? 'VALIDATE' : 'CONFIRM MISMATCH',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 2,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Icon(
+                          _quantityMatches
+                              ? Icons.check_circle
+                              : Icons.warning_amber_rounded,
+                          size: 24,
+                          color: Colors.white,
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),

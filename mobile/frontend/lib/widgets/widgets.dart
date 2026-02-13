@@ -6,3 +6,4 @@ export 'quantity_stepper.dart';
 export 'bottom_action_bar.dart';
 export 'status_badge.dart';
 export 'path_grid.dart';
+export 'confirm_dialog.dart';

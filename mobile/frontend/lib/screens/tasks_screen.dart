@@ -24,9 +24,18 @@ class TasksScreen extends StatelessWidget {
         showBackButton: false,
         leadingIcon: isEmployee ? Icons.logout : null,
         onMenuPressed: isEmployee
-            ? () {
-                context.read<AuthCubit>().logout();
-                Navigator.of(context).pushReplacementNamed('/login');
+            ? () async {
+                final confirmed = await showConfirmDialog(
+                  context,
+                  title: 'Logout',
+                  message: 'Are you sure you want to logout?',
+                  confirmLabel: 'LOGOUT',
+                  isDestructive: true,
+                );
+                if (confirmed && context.mounted) {
+                  context.read<AuthCubit>().logout();
+                  Navigator.of(context).pushReplacementNamed('/login');
+                }
               }
             : null,
       ),

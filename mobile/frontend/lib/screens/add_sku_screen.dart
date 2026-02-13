@@ -194,7 +194,6 @@ class _AddSkuScreenState extends State<AddSkuScreen> {
 
           // Save button
           Container(
-            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: AppColors.surface,
               border: Border(
@@ -203,25 +202,31 @@ class _AddSkuScreenState extends State<AddSkuScreen> {
                 ),
               ),
             ),
-            child: SizedBox(
-              width: double.infinity,
-              height: 64,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  if (_nameController.text.isNotEmpty &&
-                      _skuIdController.text.isNotEmpty) {
-                    final quantity =
-                        int.tryParse(_quantityController.text) ?? 0;
-                    context.read<SkusCubit>().addSku(
-                      name: _nameController.text,
-                      skuCode: _skuIdController.text,
-                      quantity: quantity,
-                    );
-                    Navigator.of(context).pop();
-                  }
-                },
-                icon: const Icon(Icons.save),
-                label: const Text('SAVE'),
+            child: SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 64,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      if (_nameController.text.isNotEmpty &&
+                          _skuIdController.text.isNotEmpty) {
+                        final quantity =
+                            int.tryParse(_quantityController.text) ?? 0;
+                        context.read<SkusCubit>().addSku(
+                          name: _nameController.text,
+                          skuCode: _skuIdController.text,
+                          quantity: quantity,
+                        );
+                        Navigator.of(context).pop();
+                      }
+                    },
+                    icon: const Icon(Icons.save),
+                    label: const Text('SAVE'),
+                  ),
+                ),
               ),
             ),
           ),

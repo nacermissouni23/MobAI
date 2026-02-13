@@ -248,7 +248,6 @@ class _DeliveryTaskScreenState extends State<DeliveryTaskScreen> {
           ),
           // Bottom validate button
           Container(
-            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: AppColors.surface,
               border: Border(
@@ -257,18 +256,26 @@ class _DeliveryTaskScreenState extends State<DeliveryTaskScreen> {
                 ),
               ),
             ),
-            child: SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton.icon(
-                onPressed: _confirmed
-                    ? () {
-                        context.read<TasksCubit>().completeTask(widget.task.id);
-                        Navigator.of(context).pop();
-                      }
-                    : null,
-                icon: const Icon(Icons.check_circle),
-                label: const Text('VALIDATE DELIVERY'),
+            child: SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton.icon(
+                    onPressed: _confirmed
+                        ? () {
+                            context.read<TasksCubit>().completeTask(
+                              widget.task.id,
+                            );
+                            Navigator.of(context).pop();
+                          }
+                        : null,
+                    icon: const Icon(Icons.check_circle),
+                    label: const Text('VALIDATE DELIVERY'),
+                  ),
+                ),
               ),
             ),
           ),

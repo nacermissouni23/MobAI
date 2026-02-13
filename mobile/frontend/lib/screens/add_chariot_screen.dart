@@ -128,7 +128,6 @@ class _AddChariotScreenState extends State<AddChariotScreen> {
           ),
           // Save button
           Container(
-            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: AppColors.surface,
               border: Border(
@@ -137,20 +136,26 @@ class _AddChariotScreenState extends State<AddChariotScreen> {
                 ),
               ),
             ),
-            child: SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  if (_idController.text.isNotEmpty) {
-                    context.read<ChariotsCubit>().addChariot(
-                      _idController.text,
-                    );
-                    Navigator.of(context).pop();
-                  }
-                },
-                icon: const Icon(Icons.save),
-                label: const Text('ADD'),
+            child: SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      if (_idController.text.isNotEmpty) {
+                        context.read<ChariotsCubit>().addChariot(
+                          _idController.text,
+                        );
+                        Navigator.of(context).pop();
+                      }
+                    },
+                    icon: const Icon(Icons.save),
+                    label: const Text('ADD'),
+                  ),
+                ),
               ),
             ),
           ),

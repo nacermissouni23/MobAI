@@ -175,7 +175,6 @@ class _EditUserScreenState extends State<EditUserScreen> {
           ),
           // Bottom Actions
           Container(
-            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: AppColors.surface,
               border: Border(
@@ -184,39 +183,66 @@ class _EditUserScreenState extends State<EditUserScreen> {
                 ),
               ),
             ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: SizedBox(
-                    height: 56,
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('CANCEL'),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  flex: 2,
-                  child: SizedBox(
-                    height: 56,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        context.read<UsersCubit>().updateUser(
-                          widget.user.copyWith(
-                            fullName: _nameController.text,
-                            role: _selectedRole,
-                            isActive: _isActive,
+            child: SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: 56,
+                        child: OutlinedButton.icon(
+                          onPressed: () async {
+                            final confirmed = await showConfirmDialog(
+                              context,
+                              title: 'Delete User',
+                              message:
+                                  'Are you sure you want to delete ${widget.user.fullName}? This action cannot be undone.',
+                              confirmLabel: 'DELETE',
+                              isDestructive: true,
+                            );
+                            if (confirmed && context.mounted) {
+                              context.read<UsersCubit>().deleteUser(
+                                widget.user.id,
+                              );
+                              Navigator.of(context).pop();
+                            }
+                          },
+                          icon: const Icon(Icons.delete),
+                          label: const Text('DELETE'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.red,
+                            side: BorderSide(
+                              color: Colors.red.withValues(alpha: 0.5),
+                            ),
                           ),
-                        );
-                        Navigator.of(context).pop();
-                      },
-                      icon: const Icon(Icons.save),
-                      label: const Text('SAVE'),
+                        ),
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: SizedBox(
+                        height: 56,
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            context.read<UsersCubit>().updateUser(
+                              widget.user.copyWith(
+                                fullName: _nameController.text,
+                                role: _selectedRole,
+                                isActive: _isActive,
+                              ),
+                            );
+                            Navigator.of(context).pop();
+                          },
+                          icon: const Icon(Icons.save),
+                          label: const Text('SAVE'),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ],

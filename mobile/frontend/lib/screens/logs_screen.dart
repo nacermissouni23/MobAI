@@ -161,7 +161,30 @@ class _LogsScreenState extends State<LogsScreen> {
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               itemCount: logs.length,
-              itemBuilder: (context, index) => _LogCard(entry: logs[index]),
+              itemBuilder: (context, index) {
+                final entry = logs[index];
+
+                // Simple Category Filter
+                if (_selectedCategory != 'All') {
+                  // Map UI categories to data categories (mock logic)
+                  if (_selectedCategory == 'Stock' &&
+                      entry.category != 'Stock' &&
+                      entry.category != 'Relocation')
+                    return const SizedBox.shrink();
+                  if (_selectedCategory == 'Operation' &&
+                      entry.category != 'Picking' &&
+                      entry.category != 'Override')
+                    return const SizedBox.shrink();
+                }
+
+                // Simple Time Range mock
+                if (_selectedTimeRange == 'Last Week' && index % 3 == 0)
+                  return const SizedBox.shrink();
+                if (_selectedTimeRange == 'Last Month' && index % 2 == 0)
+                  return const SizedBox.shrink();
+
+                return _LogCard(entry: entry);
+              },
             ),
           ),
         ],

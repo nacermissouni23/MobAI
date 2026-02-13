@@ -84,7 +84,6 @@ class _SkusScreenState extends State<SkusScreen> {
                   right: 0,
                   bottom: 0,
                   child: Container(
-                    padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
@@ -95,13 +94,19 @@ class _SkusScreenState extends State<SkusScreen> {
                         ],
                       ),
                     ),
-                    child: SizedBox(
-                      height: 56,
-                      child: ElevatedButton.icon(
-                        onPressed: () =>
-                            Navigator.of(context).pushNamed('/add-sku'),
-                        icon: const Icon(Icons.add_box),
-                        label: const Text('ADD NEW SKU'),
+                    child: SafeArea(
+                      top: false,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
+                        child: SizedBox(
+                          height: 56,
+                          child: ElevatedButton.icon(
+                            onPressed: () =>
+                                Navigator.of(context).pushNamed('/add-sku'),
+                            icon: const Icon(Icons.add_box),
+                            label: const Text('ADD NEW SKU'),
+                          ),
+                        ),
                       ),
                     ),
                   ),

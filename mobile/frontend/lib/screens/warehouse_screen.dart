@@ -177,7 +177,6 @@ class _WarehouseScreenState extends State<WarehouseScreen> {
                 ),
                 // Bottom Action
                 Container(
-                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: AppColors.surface,
                     border: Border(
@@ -186,25 +185,33 @@ class _WarehouseScreenState extends State<WarehouseScreen> {
                       ),
                     ),
                   ),
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        setState(() => _editMode = !_editMode);
-                        if (_editMode) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'Pinch to zoom, tap cells to select. Editing mode active.',
-                              ),
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
-                        }
-                      },
-                      icon: Icon(_editMode ? Icons.check : Icons.edit),
-                      label: Text(_editMode ? 'DONE EDITING' : 'EDIT SLOTS'),
+                  child: SafeArea(
+                    top: false,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 56,
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            setState(() => _editMode = !_editMode);
+                            if (_editMode) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Pinch to zoom, tap cells to select. Editing mode active.',
+                                  ),
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            }
+                          },
+                          icon: Icon(_editMode ? Icons.check : Icons.edit),
+                          label: Text(
+                            _editMode ? 'DONE EDITING' : 'EDIT SLOTS',
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),

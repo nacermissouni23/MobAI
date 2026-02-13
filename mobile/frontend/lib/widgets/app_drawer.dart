@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/config/theme.dart';
 import 'package:frontend/cubits/cubits.dart';
 import 'package:frontend/data/models/models.dart';
+import 'package:frontend/widgets/confirm_dialog.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -105,11 +106,20 @@ class AppDrawer extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(16),
               child: OutlinedButton.icon(
-                onPressed: () {
-                  context.read<AuthCubit>().logout();
-                  Navigator.of(
+                onPressed: () async {
+                  final confirmed = await showConfirmDialog(
                     context,
-                  ).pushNamedAndRemoveUntil('/login', (route) => false);
+                    title: 'Logout',
+                    message: 'Are you sure you want to logout?',
+                    confirmLabel: 'LOGOUT',
+                    isDestructive: true,
+                  );
+                  if (confirmed && context.mounted) {
+                    context.read<AuthCubit>().logout();
+                    Navigator.of(
+                      context,
+                    ).pushNamedAndRemoveUntil('/login', (route) => false);
+                  }
                 },
                 icon: const Icon(Icons.logout, size: 20),
                 label: const Text('LOGOUT'),

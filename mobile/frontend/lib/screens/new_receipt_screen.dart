@@ -185,36 +185,41 @@ class _NewReceiptScreenState extends State<NewReceiptScreen> {
           ),
           // Validate Button
           Container(
-            padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: AppColors.surface,
               border: Border(top: BorderSide(color: Colors.grey.shade200)),
             ),
-            child: SizedBox(
-              width: double.infinity,
-              height: 64,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                style: ElevatedButton.styleFrom(
-                  elevation: 8,
-                  shadowColor: AppColors.primary.withValues(alpha: 0.2),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Text(
-                      'VALIDATE',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 2,
-                      ),
+            child: SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 64,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      elevation: 8,
+                      shadowColor: AppColors.primary.withValues(alpha: 0.2),
                     ),
-                    SizedBox(width: 8),
-                    Icon(Icons.check_circle, size: 24),
-                  ],
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Text(
+                          'VALIDATE',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 2,
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Icon(Icons.check_circle, size: 24),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
