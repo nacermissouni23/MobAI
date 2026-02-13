@@ -5,6 +5,7 @@ import 'package:frontend/cubits/cubits.dart';
 import 'package:frontend/data/models/models.dart';
 import 'package:frontend/widgets/widgets.dart';
 
+/// Pick Step 2: Path from elevator to rack + validate.
 class PickValidateScreen extends StatelessWidget {
   final WarehouseTask task;
   final int pickedQuantity;
@@ -16,9 +17,7 @@ class PickValidateScreen extends StatelessWidget {
   });
 
   void _handleValidate(BuildContext context) {
-    // Complete the task with the picked quantity
     context.read<TasksCubit>().completeTask(task.id);
-    // Pop back to the main list (pop until first route or specific logic)
     Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
@@ -36,15 +35,7 @@ class PickValidateScreen extends StatelessWidget {
                 children: [
                   const SizedBox(height: 8),
                   // Product Identity
-                  const Text(
-                    'PRODUCT IDENTITY',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textSecondary,
-                      letterSpacing: 1.5,
-                    ),
-                  ),
+                  const SectionLabel('Product Identity'),
                   const SizedBox(height: 4),
                   Text(
                     task.productId ?? 'UNKNOWN',
@@ -57,47 +48,29 @@ class PickValidateScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
 
-                  // Quantity To Pick
+                  // Quantity display
                   _buildQuantityDisplay(),
                   const SizedBox(height: 24),
 
                   // Location Badge
-                  _buildLocationBadge(task.toLocation ?? 'Floor 0, Zone A-12'),
+                  _buildLocationBadge(),
                   const SizedBox(height: 24),
 
-                  // Map
-                  _buildMapSection(),
+                  // Path Grid
+                  const PathGrid(
+                    title: 'Warehouse Path Map',
+                    startIndex: 20,
+                    endIndex: 4,
+                    hint: 'Follow highlighted aisle',
+                  ),
                 ],
               ),
             ),
           ),
-          // Footer
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              border: Border(top: BorderSide(color: AppColors.neutralBorder)),
-            ),
-            child: SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton.icon(
-                onPressed: () => _handleValidate(context),
-                icon: const Icon(Icons.check_circle),
-                label: const Text('VALIDATE'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  textStyle: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-            ),
+          BottomActionBar.single(
+            label: 'VALIDATE',
+            icon: Icons.check_circle,
+            onPressed: () => _handleValidate(context),
           ),
         ],
       ),
@@ -114,15 +87,7 @@ class PickValidateScreen extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const Text(
-            'QUANTITY TO PICK',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textSecondary,
-              letterSpacing: 1.5,
-            ),
-          ),
+          const SectionLabel('Quantity to Pick'),
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -130,7 +95,7 @@ class PickValidateScreen extends StatelessWidget {
               Text(
                 '$pickedQuantity',
                 style: const TextStyle(
-                  fontSize: 60,
+                  fontSize: 56,
                   fontWeight: FontWeight.w900,
                   color: AppColors.textMain,
                 ),
@@ -151,7 +116,12 @@ class PickValidateScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLocationBadge(String location) {
+  Widget _buildLocationBadge() {
+    final location = task.toLocation ?? 'Floor 0, Zone A-12';
+    final parts = location.split(',');
+    final floor = parts.first.trim();
+    final zone = parts.length > 1 ? parts.last.trim() : 'A-12';
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -192,7 +162,7 @@ class PickValidateScreen extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    location.split(',').first.trim(),
+                    floor,
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -216,101 +186,11 @@ class PickValidateScreen extends StatelessWidget {
                 ),
               ),
               Text(
-                location.contains(',')
-                    ? location.split(',').last.trim()
-                    : 'A-12',
+                zone,
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMapSection() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.neutralBorder),
-      ),
-      child: Column(
-        children: [
-          const Text(
-            'WAREHOUSE PATH MAP',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textSecondary,
-              letterSpacing: 1.5,
-            ),
-          ),
-          const SizedBox(height: 20),
-          AspectRatio(
-            aspectRatio: 1,
-            child: GridView.builder(
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 5,
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
-              ),
-              itemCount: 25,
-              itemBuilder: (context, index) {
-                // Mock L-shape path
-                bool isTarget = index == 4;
-                bool isStart = index == 20;
-
-                return Container(
-                  decoration: BoxDecoration(
-                    color: isTarget
-                        ? AppColors.primary
-                        : (isStart
-                              ? AppColors.primary.withValues(alpha: 0.2)
-                              : AppColors.primary.withValues(alpha: 0.05)),
-                    borderRadius: BorderRadius.circular(4),
-                    border: Border.all(
-                      color: isTarget
-                          ? AppColors.primary
-                          : AppColors.primary.withValues(alpha: 0.1),
-                    ),
-                  ),
-                  child: isTarget
-                      ? const Icon(
-                          Icons.inventory_2,
-                          color: Colors.white,
-                          size: 20,
-                        )
-                      : (isStart
-                            ? const Icon(
-                                Icons.person_pin_circle,
-                                color: AppColors.primary,
-                                size: 20,
-                              )
-                            : null),
-                );
-              },
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.near_me, size: 16, color: AppColors.primary),
-              const SizedBox(width: 4),
-              Text(
-                'FOLLOW HIGHLIGHTED AISLE',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primary,
-                  letterSpacing: 1,
                 ),
               ),
             ],

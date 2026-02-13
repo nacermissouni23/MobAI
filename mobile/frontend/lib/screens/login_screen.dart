@@ -45,6 +45,8 @@ class _LoginScreenState extends State<LoginScreen> {
       },
       child: Scaffold(
         backgroundColor: AppColors.backgroundLight,
+        // Let the scaffold resize when the keyboard appears
+        resizeToAvoidBottomInset: true,
         body: SafeArea(
           child: Column(
             children: [
@@ -58,36 +60,30 @@ class _LoginScreenState extends State<LoginScreen> {
                     bottom: BorderSide(color: AppColors.neutralBorder),
                   ),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: const Row(
                   children: [
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.warehouse,
-                          color: AppColors.primary,
-                          size: 24,
-                        ),
-                        const SizedBox(width: 12),
-                        const Text(
-                          'Depot B7',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.textMain,
-                          ),
-                        ),
-                      ],
+                    Icon(Icons.warehouse, color: AppColors.primary, size: 24),
+                    SizedBox(width: 12),
+                    Text(
+                      'Depot B7',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.textMain,
+                      ),
                     ),
-                    const SizedBox(),
                   ],
                 ),
               ),
-              // Main Content
+              // Scrollable body — everything scrolls so nothing hides under keyboard
               Expanded(
-                child: SingleChildScrollView(
-                  child: Padding(
+                child: GestureDetector(
+                  // Dismiss keyboard on tap outside
+                  onTap: () => FocusScope.of(context).unfocus(),
+                  child: SingleChildScrollView(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
+                    keyboardDismissBehavior:
+                        ScrollViewKeyboardDismissBehavior.onDrag,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -102,7 +98,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         const SizedBox(height: 4),
-                        Text(
+                        const Text(
                           'Please enter your credentials to access the execution system.',
                           style: TextStyle(
                             fontSize: 14,
@@ -110,7 +106,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         const SizedBox(height: 40),
-                        // ID Input
+                        // ID Input — uses theme InputDecoration
                         const Text(
                           'ID',
                           style: TextStyle(
@@ -122,33 +118,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         const SizedBox(height: 8),
                         TextField(
                           controller: _idController,
-                          decoration: InputDecoration(
+                          textInputAction: TextInputAction.next,
+                          decoration: const InputDecoration(
                             hintText: 'Enter ID',
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 18,
-                            ),
-                            filled: true,
-                            fillColor: AppColors.surface,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(
-                                color: AppColors.neutralBorder,
-                              ),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(
-                                color: AppColors.neutralBorder,
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(
-                                color: AppColors.primary,
-                                width: 2,
-                              ),
-                            ),
                           ),
                         ),
                         const SizedBox(height: 24),
@@ -165,33 +137,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         TextField(
                           controller: _passwordController,
                           obscureText: _obscurePassword,
+                          textInputAction: TextInputAction.done,
+                          onSubmitted: (_) => _submit(),
                           decoration: InputDecoration(
                             hintText: 'Enter Password',
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 18,
-                            ),
-                            filled: true,
-                            fillColor: AppColors.surface,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(
-                                color: AppColors.neutralBorder,
-                              ),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(
-                                color: AppColors.neutralBorder,
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(
-                                color: AppColors.primary,
-                                width: 2,
-                              ),
-                            ),
                             suffixIcon: IconButton(
                               icon: Icon(
                                 _obscurePassword
@@ -207,75 +156,63 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                         ),
+                        const SizedBox(height: 40),
+                        // Login Button — inside scroll view
+                        BlocBuilder<AuthCubit, AuthState>(
+                          builder: (context, state) {
+                            return SizedBox(
+                              width: double.infinity,
+                              height: 56,
+                              child: ElevatedButton(
+                                onPressed: state is AuthLoading
+                                    ? null
+                                    : _submit,
+                                child: state is AuthLoading
+                                    ? const SizedBox(
+                                        width: 24,
+                                        height: 24,
+                                        child: CircularProgressIndicator(
+                                          color: Colors.white,
+                                          strokeWidth: 2.5,
+                                        ),
+                                      )
+                                    : const Text('LOGIN'),
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 24),
+                        Center(
+                          child: Text(
+                            'SYSTEM VERSION 4.2.0-B7',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 1.5,
+                              color: AppColors.textSecondary.withValues(
+                                alpha: 0.6,
+                              ),
+                            ),
+                          ),
+                        ),
+                        // Extra space at the bottom so content clears the keyboard
+                        const SizedBox(height: 48),
                       ],
                     ),
                   ),
-                ),
-              ),
-              // Bottom CTA
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-                child: Column(
-                  children: [
-                    BlocBuilder<AuthCubit, AuthState>(
-                      builder: (context, state) {
-                        return SizedBox(
-                          width: double.infinity,
-                          height: 56,
-                          child: ElevatedButton(
-                            onPressed: state is AuthLoading
-                                ? null
-                                : () {
-                                    context.read<AuthCubit>().login(
-                                      _idController.text.trim(),
-                                      _passwordController.text.trim(),
-                                    );
-                                  },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: state is AuthLoading
-                                ? const SizedBox(
-                                    width: 24,
-                                    height: 24,
-                                    child: CircularProgressIndicator(
-                                      color: Colors.white,
-                                      strokeWidth: 2.5,
-                                    ),
-                                  )
-                                : const Text(
-                                    'LOGIN',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 16,
-                                      letterSpacing: 3.0,
-                                    ),
-                                  ),
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      'SYSTEM VERSION 4.2.0-B7',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 1.5,
-                        color: AppColors.textSecondary.withValues(alpha: 0.6),
-                      ),
-                    ),
-                  ],
                 ),
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  void _submit() {
+    context.read<AuthCubit>().login(
+      _idController.text.trim(),
+      _passwordController.text.trim(),
     );
   }
 }

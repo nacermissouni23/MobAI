@@ -19,34 +19,16 @@ class TasksScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
       drawer: isEmployee ? null : const AppDrawer(),
-      appBar: AppBar(
-        backgroundColor: AppColors.surface,
-        surfaceTintColor: Colors.transparent,
-        leading: IconButton(
-          icon: const Icon(Icons.logout, color: AppColors.primary),
-          onPressed: () {
-            context.read<AuthCubit>().logout();
-            Navigator.of(context).pushReplacementNamed('/login');
-          },
-        ),
-        title: const Text(
-          'TASKS',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 1.0,
-            color: AppColors.textMain,
-          ),
-        ),
-        centerTitle: true,
-        actions: const [SizedBox(width: 12)],
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1),
-          child: Container(
-            height: 1,
-            color: AppColors.primary.withValues(alpha: 0.1),
-          ),
-        ),
+      appBar: WarehouseAppBar(
+        title: 'TASKS',
+        showBackButton: false,
+        leadingIcon: isEmployee ? Icons.logout : null,
+        onMenuPressed: isEmployee
+            ? () {
+                context.read<AuthCubit>().logout();
+                Navigator.of(context).pushReplacementNamed('/login');
+              }
+            : null,
       ),
       body: BlocBuilder<TasksCubit, TasksState>(
         builder: (context, state) {

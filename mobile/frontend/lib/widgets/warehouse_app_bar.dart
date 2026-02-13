@@ -5,12 +5,14 @@ class WarehouseAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final VoidCallback? onMenuPressed;
   final bool showBackButton;
+  final IconData? leadingIcon;
 
   const WarehouseAppBar({
     super.key,
     required this.title,
     this.onMenuPressed,
     this.showBackButton = false,
+    this.leadingIcon,
   });
 
   @override
@@ -27,7 +29,7 @@ class WarehouseAppBar extends StatelessWidget implements PreferredSizeWidget {
               onPressed: () => Navigator.of(context).pop(),
             )
           : IconButton(
-              icon: const Icon(Icons.menu, color: AppColors.primary),
+              icon: Icon(leadingIcon ?? Icons.menu, color: AppColors.primary),
               onPressed:
                   onMenuPressed ?? () => Scaffold.of(context).openDrawer(),
             ),

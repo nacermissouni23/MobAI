@@ -65,7 +65,7 @@ class _SuggestionCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'PICKING PRODUCT ID',
+                    '${suggestion.typeLabel} PRODUCT ID',
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
@@ -171,7 +171,7 @@ class _SuggestionCard extends StatelessWidget {
                         style: TextStyle(fontWeight: FontWeight.w700),
                       ),
                     ),
-                  ),               
+                  ),
                 ],
               ),
             ],
