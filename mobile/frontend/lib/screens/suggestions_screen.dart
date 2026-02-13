@@ -172,6 +172,15 @@ class _SuggestionCard extends StatelessWidget {
                           letterSpacing: -0.5,
                         ),
                       ),
+                      const SizedBox(height: 2),
+                      Text(
+                        suggestion.typeLabel,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.primary,
+                        ),
+                      ),
                       const SizedBox(height: 4),
                       Text(
                         suggestion.productId,
@@ -251,7 +260,10 @@ class _SuggestionCard extends StatelessWidget {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
-                        Navigator.of(context).pushNamed('/suggestion-details');
+                        Navigator.of(context).pushNamed(
+                          '/suggestion-details',
+                          arguments: suggestion,
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 12),

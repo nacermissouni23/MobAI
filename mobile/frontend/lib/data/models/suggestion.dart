@@ -2,15 +2,21 @@ import 'package:equatable/equatable.dart';
 
 enum SuggestionStatus { ready, urgent, pending }
 
+enum SuggestionType { picking, storage, preparation }
+
 class Suggestion extends Equatable {
   final String id;
   final String productId;
   final String fromLocation;
   final String toLocation;
   final SuggestionStatus status;
+  final SuggestionType type;
   final int quantity;
   final String? assignedTo;
   final String? overrideJustification;
+  final String? overriddenFromLocation;
+  final String? overriddenToLocation;
+  final bool isOverridden;
   final List<Map<String, int>>? path;
 
   const Suggestion({
@@ -19,9 +25,13 @@ class Suggestion extends Equatable {
     required this.fromLocation,
     required this.toLocation,
     required this.status,
+    this.type = SuggestionType.picking,
     this.quantity = 0,
     this.assignedTo,
     this.overrideJustification,
+    this.overriddenFromLocation,
+    this.overriddenToLocation,
+    this.isOverridden = false,
     this.path,
   });
 
@@ -35,6 +45,40 @@ class Suggestion extends Equatable {
     quantity,
   ];
 
+  Suggestion copyWith({
+    String? id,
+    String? productId,
+    String? fromLocation,
+    String? toLocation,
+    SuggestionStatus? status,
+    SuggestionType? type,
+    int? quantity,
+    String? assignedTo,
+    String? overrideJustification,
+    String? overriddenFromLocation,
+    String? overriddenToLocation,
+    bool? isOverridden,
+    List<Map<String, int>>? path,
+  }) {
+    return Suggestion(
+      id: id ?? this.id,
+      productId: productId ?? this.productId,
+      fromLocation: fromLocation ?? this.fromLocation,
+      toLocation: toLocation ?? this.toLocation,
+      status: status ?? this.status,
+      type: type ?? this.type,
+      quantity: quantity ?? this.quantity,
+      assignedTo: assignedTo ?? this.assignedTo,
+      overrideJustification:
+          overrideJustification ?? this.overrideJustification,
+      overriddenFromLocation:
+          overriddenFromLocation ?? this.overriddenFromLocation,
+      overriddenToLocation: overriddenToLocation ?? this.overriddenToLocation,
+      isOverridden: isOverridden ?? this.isOverridden,
+      path: path ?? this.path,
+    );
+  }
+
   String get statusLabel {
     switch (status) {
       case SuggestionStatus.ready:
@@ -45,4 +89,19 @@ class Suggestion extends Equatable {
         return 'PENDING';
     }
   }
+
+  String get typeLabel {
+    switch (type) {
+      case SuggestionType.picking:
+        return 'PICKING';
+      case SuggestionType.storage:
+        return 'STORAGE';
+      case SuggestionType.preparation:
+        return 'PREPARATION';
+    }
+  }
+
+  /// Effective locations (after override if any)
+  String get effectiveFrom => overriddenFromLocation ?? fromLocation;
+  String get effectiveTo => overriddenToLocation ?? toLocation;
 }

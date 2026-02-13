@@ -13,6 +13,8 @@ class ChariotsScreen extends StatefulWidget {
 }
 
 class _ChariotsScreenState extends State<ChariotsScreen> {
+  String _searchQuery = '';
+
   @override
   void initState() {
     super.initState();
@@ -28,6 +30,15 @@ class _ChariotsScreenState extends State<ChariotsScreen> {
       body: BlocBuilder<ChariotsCubit, ChariotsState>(
         builder: (context, state) {
           if (state is ChariotsLoaded) {
+            final filtered = _searchQuery.isEmpty
+                ? state.chariots
+                : state.chariots.where((c) {
+                    final q = _searchQuery.toLowerCase();
+                    return c.id.toLowerCase().contains(q) ||
+                        c.name.toLowerCase().contains(q) ||
+                        c.statusLabel.toLowerCase().contains(q) ||
+                        (c.location?.toLowerCase().contains(q) ?? false);
+                  }).toList();
             return Stack(
               children: [
                 Column(
@@ -36,6 +47,7 @@ class _ChariotsScreenState extends State<ChariotsScreen> {
                     Padding(
                       padding: const EdgeInsets.all(16),
                       child: TextField(
+                        onChanged: (val) => setState(() => _searchQuery = val),
                         decoration: InputDecoration(
                           hintText: 'Search ID, Status or Zone...',
                           prefixIcon: const Icon(
@@ -61,7 +73,7 @@ class _ChariotsScreenState extends State<ChariotsScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'ACTIVE FLEET (${state.chariots.length})',
+                            'ACTIVE FLEET (${filtered.length})',
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
@@ -81,9 +93,9 @@ class _ChariotsScreenState extends State<ChariotsScreen> {
                     Expanded(
                       child: ListView.builder(
                         padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
-                        itemCount: state.chariots.length,
+                        itemCount: filtered.length,
                         itemBuilder: (context, index) {
-                          return _ChariotCard(chariot: state.chariots[index]);
+                          return _ChariotCard(chariot: filtered[index]);
                         },
                       ),
                     ),
@@ -168,111 +180,116 @@ class _ChariotCard extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isOffline ? Colors.grey.shade50 : AppColors.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isOffline
-                ? Colors.grey.shade200
-                : AppColors.primary.withValues(alpha: 0.1),
-            width: 2,
-          ),
-          boxShadow: isOffline
-              ? []
-              : [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.04),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-        ),
-        child: Opacity(
-          opacity: isOffline ? 0.7 : 1.0,
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: isOffline
-                      ? Colors.grey.shade200
-                      : isInUse
-                      ? AppColors.primary
-                      : AppColors.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  isOffline
-                      ? Icons.build
-                      : isInUse
-                      ? Icons.person_pin_circle
-                      : Icons.shopping_cart,
-                  color: isOffline
-                      ? Colors.grey.shade500
-                      : isInUse
-                      ? Colors.white
-                      : AppColors.primary,
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          chariot.name,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                            color: isOffline
-                                ? Colors.grey.shade500
-                                : AppColors.textMain,
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            color: statusBg,
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: statusBorder),
-                          ),
-                          child: Text(
-                            chariot.statusLabel,
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w900,
-                              color: statusText,
-                              letterSpacing: -0.5,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      details,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: isOffline
-                            ? Colors.grey.shade400
-                            : AppColors.primary.withValues(alpha: 0.6),
-                      ),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.of(context).pushNamed('/edit-chariot', arguments: chariot);
+        },
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: isOffline ? Colors.grey.shade50 : AppColors.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isOffline
+                  ? Colors.grey.shade200
+                  : AppColors.primary.withValues(alpha: 0.1),
+              width: 2,
+            ),
+            boxShadow: isOffline
+                ? []
+                : [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.04),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
                     ),
                   ],
+          ),
+          child: Opacity(
+            opacity: isOffline ? 0.7 : 1.0,
+            child: Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: isOffline
+                        ? Colors.grey.shade200
+                        : isInUse
+                        ? AppColors.primary
+                        : AppColors.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    isOffline
+                        ? Icons.build
+                        : isInUse
+                        ? Icons.person_pin_circle
+                        : Icons.shopping_cart,
+                    color: isOffline
+                        ? Colors.grey.shade500
+                        : isInUse
+                        ? Colors.white
+                        : AppColors.primary,
+                    size: 24,
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            chariot.name,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: isOffline
+                                  ? Colors.grey.shade500
+                                  : AppColors.textMain,
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 3,
+                            ),
+                            decoration: BoxDecoration(
+                              color: statusBg,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: statusBorder),
+                            ),
+                            child: Text(
+                              chariot.statusLabel,
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w900,
+                                color: statusText,
+                                letterSpacing: -0.5,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        details,
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: isOffline
+                              ? Colors.grey.shade400
+                              : AppColors.primary.withValues(alpha: 0.6),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

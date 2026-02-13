@@ -38,4 +38,26 @@ class UsersCubit extends Cubit<UsersState> {
       emit(UsersLoaded([...current, newUser]));
     }
   }
+
+  void updateUser(AppUser updatedUser) {
+    if (state is UsersLoaded) {
+      final current = (state as UsersLoaded).users;
+      final updated = current.map((u) {
+        if (u.id == updatedUser.id) return updatedUser;
+        return u;
+      }).toList();
+      emit(UsersLoaded(updated));
+    }
+  }
+
+  void toggleUserActive(String userId) {
+    if (state is UsersLoaded) {
+      final current = (state as UsersLoaded).users;
+      final updated = current.map((u) {
+        if (u.id == userId) return u.copyWith(isActive: !u.isActive);
+        return u;
+      }).toList();
+      emit(UsersLoaded(updated));
+    }
+  }
 }

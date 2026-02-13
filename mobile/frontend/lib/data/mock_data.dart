@@ -1,7 +1,7 @@
 import 'package:frontend/data/models/models.dart';
 
 class MockData {
-  // Users
+  // Users - comprehensive set covering all roles
   static const List<AppUser> users = [
     AppUser(id: '001', fullName: 'John Doe', role: UserRole.employee),
     AppUser(id: '002', fullName: 'Jane Smith', role: UserRole.supervisor),
@@ -9,51 +9,156 @@ class MockData {
     AppUser(id: '004', fullName: 'Emily Davis', role: UserRole.supervisor),
     AppUser(id: '005', fullName: 'Michael Chen', role: UserRole.employee),
     AppUser(id: '006', fullName: 'Sarah Wilson', role: UserRole.admin),
+    AppUser(id: '007', fullName: 'Ahmed Benali', role: UserRole.employee),
+    AppUser(id: '008', fullName: 'Youssef Kaci', role: UserRole.supervisor),
+    AppUser(
+      id: '009',
+      fullName: 'Karim Hadj',
+      role: UserRole.employee,
+      isActive: false,
+    ),
+    AppUser(id: '010', fullName: 'Nadia Merah', role: UserRole.admin),
   ];
 
-  // Tasks
+  // Tasks - all four types with different statuses
   static List<WarehouseTask> tasks = [
+    // Picking tasks
     WarehouseTask(
       id: 'T001',
       type: TaskType.pick,
       status: TaskStatus.pending,
-      location: 'A-12-04',
+      location: 'B7-N1-C7',
       productId: 'P-99042',
       quantity: 15,
       scheduledAt: DateTime(2026, 2, 13, 10, 30),
-      fromLocation: 'A-12-04',
-      toLocation: 'B-05-01',
+      assignedTo: '001',
+      fromLocation: 'B7-N1-C7',
+      toLocation: 'B7-0A-01-03',
     ),
     WarehouseTask(
       id: 'T002',
+      type: TaskType.pick,
+      status: TaskStatus.pending,
+      location: 'B7-N2-C3',
+      productId: 'P-55219',
+      quantity: 10,
+      scheduledAt: DateTime(2026, 2, 13, 12, 30),
+      assignedTo: '001',
+      fromLocation: 'B7-N2-C3',
+      toLocation: 'B7-0A-02-05',
+    ),
+    // Delivery tasks
+    WarehouseTask(
+      id: 'T003',
       type: TaskType.deliver,
       status: TaskStatus.pending,
-      location: 'B-05-01',
+      location: 'B7-0A-01-03',
       productId: 'P-88219',
       quantity: 8,
       scheduledAt: DateTime(2026, 2, 13, 11, 15),
-    ),
-    WarehouseTask(
-      id: 'T003',
-      type: TaskType.store,
-      status: TaskStatus.pending,
-      location: 'C-02-09',
-      productId: 'P-77410',
-      quantity: 20,
-      scheduledAt: DateTime(2026, 2, 13, 11, 45),
-      fromLocation: 'Receiving',
-      toLocation: 'C-02-09',
+      assignedTo: '003',
+      fromLocation: 'B7-0A-01-03',
+      toLocation: 'Expedition Zone',
     ),
     WarehouseTask(
       id: 'T004',
-      type: TaskType.pick,
+      type: TaskType.deliver,
       status: TaskStatus.pending,
-      location: 'D-10-15',
-      productId: 'P-55219',
+      location: 'B7-0A-02-01',
+      productId: 'P-77410',
+      quantity: 20,
+      scheduledAt: DateTime(2026, 2, 13, 14, 00),
+      assignedTo: '005',
+      fromLocation: 'B7-0A-02-01',
+      toLocation: 'Expedition Zone',
+    ),
+    // Receipt tasks
+    WarehouseTask(
+      id: 'T005',
+      type: TaskType.receipt,
+      status: TaskStatus.pending,
+      location: 'Receiving Dock A',
+      productId: 'P-44102',
+      quantity: 50,
+      scheduledAt: DateTime(2026, 2, 13, 8, 00),
+      assignedTo: '001',
+      fromLocation: 'Supplier Truck',
+      toLocation: 'Receiving Dock A',
+    ),
+    WarehouseTask(
+      id: 'T006',
+      type: TaskType.receipt,
+      status: TaskStatus.pending,
+      location: 'Receiving Dock B',
+      productId: 'P-22341',
+      quantity: 100,
+      scheduledAt: DateTime(2026, 2, 13, 9, 00),
+      assignedTo: '003',
+      fromLocation: 'Supplier Truck',
+      toLocation: 'Receiving Dock B',
+    ),
+    // Storage tasks
+    WarehouseTask(
+      id: 'T007',
+      type: TaskType.store,
+      status: TaskStatus.pending,
+      location: 'B7-N1-C5',
+      productId: 'P-44102',
+      quantity: 50,
+      scheduledAt: DateTime(2026, 2, 13, 11, 45),
+      assignedTo: '007',
+      fromLocation: 'Receiving Dock A',
+      toLocation: 'B7-N1-C5',
+    ),
+    WarehouseTask(
+      id: 'T008',
+      type: TaskType.store,
+      status: TaskStatus.pending,
+      location: 'B7-N3-C12',
+      productId: 'P-88712',
+      quantity: 30,
+      scheduledAt: DateTime(2026, 2, 13, 13, 00),
+      assignedTo: '005',
+      fromLocation: 'Receiving Dock B',
+      toLocation: 'B7-N3-C12',
+    ),
+    // Completed tasks
+    WarehouseTask(
+      id: 'T009',
+      type: TaskType.pick,
+      status: TaskStatus.completed,
+      location: 'B7-N1-C2',
+      productId: 'P-99823',
       quantity: 15,
-      scheduledAt: DateTime(2026, 2, 13, 12, 30),
-      fromLocation: 'D-10-15',
-      toLocation: 'E-03-02',
+      scheduledAt: DateTime(2026, 2, 12, 10, 00),
+      assignedTo: '001',
+      fromLocation: 'B7-N1-C2',
+      toLocation: 'B7-0A-03-01',
+    ),
+    WarehouseTask(
+      id: 'T010',
+      type: TaskType.deliver,
+      status: TaskStatus.completed,
+      location: 'B7-0A-03-01',
+      productId: 'P-99823',
+      quantity: 15,
+      scheduledAt: DateTime(2026, 2, 12, 14, 00),
+      assignedTo: '003',
+      fromLocation: 'B7-0A-03-01',
+      toLocation: 'Expedition Zone',
+    ),
+    // In-progress task
+    WarehouseTask(
+      id: 'T011',
+      type: TaskType.store,
+      status: TaskStatus.inProgress,
+      location: 'B7-N2-C8',
+      productId: 'P-11209',
+      quantity: 25,
+      scheduledAt: DateTime(2026, 2, 13, 10, 00),
+      assignedTo: '007',
+      fromLocation: 'Receiving Dock A',
+      toLocation: 'B7-N2-C8',
     ),
   ];
 
@@ -95,6 +200,13 @@ class MockData {
       status: ChariotStatus.offline,
       details: 'Scheduled Maintenance • Tech: R. Davis',
     ),
+    Chariot(
+      id: 'CH-006',
+      name: 'Chariot #006',
+      status: ChariotStatus.available,
+      location: 'Standby Zone',
+      details: 'Ready',
+    ),
   ];
 
   // SKUs
@@ -105,7 +217,9 @@ class MockData {
       skuCode: 'SKU-99234-A',
       quantity: 45,
       stockStatus: SkuStockStatus.inStock,
-      locationLabel: 'Aisle 4, Shelf B',
+      locationLabel: 'B7-N1-C7',
+      weight: 4.5,
+      category: 'Tools',
     ),
     Sku(
       id: 'SKU2',
@@ -113,7 +227,9 @@ class MockData {
       skuCode: 'SKU-11209-B',
       quantity: 5,
       stockStatus: SkuStockStatus.lowStock,
-      locationLabel: 'Aisle 1, Shelf A',
+      locationLabel: 'B7-N1-C2',
+      weight: 0.2,
+      category: 'Safety',
     ),
     Sku(
       id: 'SKU3',
@@ -121,7 +237,9 @@ class MockData {
       skuCode: 'SKU-55412-C',
       quantity: 120,
       stockStatus: SkuStockStatus.inStock,
-      locationLabel: 'Aisle 8, Shelf D',
+      locationLabel: 'B7-N2-C3',
+      weight: 0.5,
+      category: 'Safety',
     ),
     Sku(
       id: 'SKU4',
@@ -129,7 +247,9 @@ class MockData {
       skuCode: 'SKU-22341-F',
       quantity: 0,
       stockStatus: SkuStockStatus.outOfStock,
-      locationLabel: 'Aisle 2, Bin 12',
+      locationLabel: 'B7-N2-C8',
+      weight: 3.0,
+      category: 'Hardware',
     ),
     Sku(
       id: 'SKU5',
@@ -137,7 +257,9 @@ class MockData {
       skuCode: 'SKU-88712-P',
       quantity: 30,
       stockStatus: SkuStockStatus.inStock,
-      locationLabel: 'Tools Room, Cabinet 1',
+      locationLabel: 'B7-N3-C12',
+      weight: 0.8,
+      category: 'Tools',
     ),
     Sku(
       id: 'SKU6',
@@ -145,35 +267,107 @@ class MockData {
       skuCode: 'SKU-44102-L',
       quantity: 60,
       stockStatus: SkuStockStatus.inStock,
-      locationLabel: 'Hazardous Store',
+      locationLabel: 'B7-N1-C5',
+      weight: 0.4,
+      category: 'Chemicals',
+    ),
+    Sku(
+      id: 'SKU7',
+      name: 'Steel Cable 10m Roll',
+      skuCode: 'SKU-77410-S',
+      quantity: 8,
+      stockStatus: SkuStockStatus.lowStock,
+      locationLabel: 'B7-N4-C1',
+      weight: 12.0,
+      category: 'Materials',
+    ),
+    Sku(
+      id: 'SKU8',
+      name: 'LED Floodlight 100W',
+      skuCode: 'SKU-88231-E',
+      quantity: 25,
+      stockStatus: SkuStockStatus.inStock,
+      locationLabel: 'B7-N3-C5',
+      weight: 2.5,
+      category: 'Electrical',
+    ),
+    Sku(
+      id: 'SKU9',
+      name: 'Hydraulic Jack 5T',
+      skuCode: 'SKU-99823-H',
+      quantity: 3,
+      stockStatus: SkuStockStatus.lowStock,
+      locationLabel: 'B7-N1-C1',
+      weight: 25.0,
+      category: 'Equipment',
+    ),
+    Sku(
+      id: 'SKU10',
+      name: 'Pallet Wrap Film',
+      skuCode: 'SKU-33102-W',
+      quantity: 200,
+      stockStatus: SkuStockStatus.inStock,
+      locationLabel: 'B7-0A-01-03',
+      weight: 1.5,
+      category: 'Packaging',
     ),
   ];
 
-  // Suggestions
+  // Suggestions - AI generated
   static const List<Suggestion> suggestions = [
     Suggestion(
       id: 'SG001',
       productId: 'P-99823',
-      fromLocation: 'A-12',
-      toLocation: 'B-04',
+      fromLocation: 'B7-N1-C2',
+      toLocation: 'B7-0A-03-01',
       status: SuggestionStatus.ready,
+      type: SuggestionType.picking,
       quantity: 15,
     ),
     Suggestion(
       id: 'SG002',
       productId: 'P-77410',
-      fromLocation: 'C-02',
-      toLocation: 'D-09',
+      fromLocation: 'B7-N2-C3',
+      toLocation: 'B7-0A-02-05',
       status: SuggestionStatus.urgent,
+      type: SuggestionType.picking,
       quantity: 10,
     ),
     Suggestion(
       id: 'SG003',
       productId: 'P-88231',
-      fromLocation: 'E-15',
-      toLocation: 'F-22',
+      fromLocation: 'Receiving Dock A',
+      toLocation: 'B7-N3-C5',
       status: SuggestionStatus.pending,
+      type: SuggestionType.storage,
       quantity: 25,
+    ),
+    Suggestion(
+      id: 'SG004',
+      productId: 'P-44102',
+      fromLocation: 'Receiving Dock B',
+      toLocation: 'B7-N1-C5',
+      status: SuggestionStatus.ready,
+      type: SuggestionType.storage,
+      quantity: 50,
+    ),
+    Suggestion(
+      id: 'SG005',
+      productId: 'P-99042',
+      fromLocation: 'B7-N1-C7',
+      toLocation: 'B7-0A-01-03',
+      status: SuggestionStatus.urgent,
+      type: SuggestionType.picking,
+      quantity: 15,
+    ),
+    Suggestion(
+      id: 'SG006',
+      productId: 'P-55219',
+      fromLocation: 'B7-N2-C8',
+      toLocation: 'B7-0A-02-01',
+      status: SuggestionStatus.pending,
+      type: SuggestionType.preparation,
+      quantity: 20,
     ),
   ];
 
@@ -182,6 +376,7 @@ class MockData {
     Report(
       id: 'R001',
       title: 'Inbound Audit Complete',
+      description: 'All received items verified against command order CO-445.',
       date: DateTime(2026, 2, 13, 9, 45),
       iconName: 'assignment_turned_in',
       isHighlighted: true,
@@ -189,24 +384,29 @@ class MockData {
     Report(
       id: 'R002',
       title: 'Inventory Reconciliation',
+      description: 'Cycle count on Floor 1 complete. 2 discrepancies found.',
       date: DateTime(2026, 2, 12, 16, 20),
       iconName: 'inventory_2',
     ),
     Report(
       id: 'R003',
       title: 'Shift Summary Report',
+      description: 'Morning shift: 12 tasks completed, 3 pending.',
       date: DateTime(2026, 2, 12, 6, 0),
       iconName: 'description',
     ),
     Report(
       id: 'R004',
       title: 'Damage Logs: Bay 12-B',
+      description: 'Water damage detected on 3 pallets in storage N2.',
       date: DateTime(2026, 2, 11, 14, 15),
       iconName: 'report_problem',
     ),
     Report(
       id: 'R005',
       title: 'Outbound Efficiency Analysis',
+      description:
+          'Delivery completion rate: 94%. Avg time per delivery: 18min.',
       date: DateTime(2026, 2, 10, 11, 30),
       iconName: 'local_shipping',
       isHighlighted: true,
@@ -214,12 +414,21 @@ class MockData {
     Report(
       id: 'R006',
       title: 'Daily Throughput Report',
+      description: 'Total products moved: 342 units across 4 floors.',
       date: DateTime(2026, 2, 9, 20, 0),
       iconName: 'monitoring',
     ),
+    Report(
+      id: 'R007',
+      title: 'Missing Product Alert',
+      description: 'SKU-22341-F not found at expected location B7-N2-C8.',
+      date: DateTime(2026, 2, 13, 7, 30),
+      iconName: 'report_problem',
+      isHighlighted: true,
+    ),
   ];
 
-  // Logs
+  // Logs - comprehensive audit trail
   static const List<LogEntry> logs = [
     LogEntry(
       id: 'L001',
@@ -227,69 +436,109 @@ class MockData {
       timeAgo: 'Just now',
       category: 'Override',
       userName: 'Supervisor Youssef',
-      description: 'Override AI suggestion for location assignment.',
-      referenceLabel: 'Reference ID',
-      referenceId: 'XC-992',
+      description:
+          'Override AI storage suggestion: moved P-44102 from B7-N3-C5 to B7-N1-C5. Reason: closer to expedition zone.',
+      referenceLabel: 'Suggestion ID',
+      referenceId: 'SG004',
     ),
     LogEntry(
       id: 'L002',
-      time: '11:15 AM',
-      timeAgo: '1h ago',
-      category: 'Picking',
-      userName: 'Employee Ahmed',
-      description: 'Validated picking sequence completion for shipment.',
-      referenceLabel: 'Order ID',
-      referenceId: 'ORD-55',
+      time: '09:45 AM',
+      timeAgo: '15m ago',
+      category: 'Receipt',
+      userName: 'Employee John',
+      description:
+          'Receipt validated: 50 units of P-44102 received at Dock A. No discrepancies.',
+      referenceLabel: 'Task ID',
+      referenceId: 'T005',
     ),
     LogEntry(
       id: 'L003',
-      time: '12:30 PM',
-      timeAgo: '2h ago',
-      category: 'Stock',
-      userName: 'Operator Sarah',
-      description: 'Inventory adjustment after cycle count mismatch.',
-      referenceLabel: 'SKU',
-      referenceId: 'SKU-8821-B',
+      time: '09:30 AM',
+      timeAgo: '30m ago',
+      category: 'Picking',
+      userName: 'Employee Ahmed',
+      description:
+          'Picking complete: 15 units of P-99823 from B7-N1-C2 to rack B7-0A-03-01.',
+      referenceLabel: 'Task ID',
+      referenceId: 'T009',
     ),
     LogEntry(
       id: 'L004',
-      time: '01:45 PM',
-      timeAgo: '3h ago',
+      time: '09:15 AM',
+      timeAgo: '45m ago',
+      category: 'Stock',
+      userName: 'System',
+      description:
+          'Stock level alert: SKU-22341-F is out of stock at B7-N2-C8.',
+      referenceLabel: 'SKU',
+      referenceId: 'SKU-22341-F',
+    ),
+    LogEntry(
+      id: 'L005',
+      time: '08:30 AM',
+      timeAgo: '1h ago',
+      category: 'Delivery',
+      userName: 'Employee Robert',
+      description:
+          'Delivery validated: 15 units of P-99823 shipped from expedition zone.',
+      referenceLabel: 'Task ID',
+      referenceId: 'T010',
+    ),
+    LogEntry(
+      id: 'L006',
+      time: '08:00 AM',
+      timeAgo: '2h ago',
+      category: 'Storage',
+      userName: 'Employee Michael',
+      description:
+          'Storage task started: Moving P-11209 (25 units) to B7-N2-C8.',
+      referenceLabel: 'Task ID',
+      referenceId: 'T011',
+    ),
+    LogEntry(
+      id: 'L007',
+      time: '07:45 AM',
+      timeAgo: '2h ago',
+      category: 'Override',
+      userName: 'Admin Sarah',
+      description:
+          'Override AI picking route for P-55219: changed destination from B7-0A-03-02 to B7-0A-02-01.',
+      referenceLabel: 'Suggestion ID',
+      referenceId: 'SG006',
+    ),
+    LogEntry(
+      id: 'L008',
+      time: 'Yesterday',
+      timeAgo: '1d ago',
+      category: 'Stock',
+      userName: 'System',
+      description:
+          'AI forecast generated: Preparation order for tomorrow requires 15 units of P-99042 and 10 units of P-55219.',
+      referenceLabel: 'Forecast ID',
+      referenceId: 'FC-2026-02-13',
+    ),
+    LogEntry(
+      id: 'L009',
+      time: 'Yesterday',
+      timeAgo: '1d ago',
+      category: 'Operation',
+      userName: 'Supervisor Jane',
+      description:
+          'All tasks for the day assigned. 8 picking, 4 delivery, 3 receipt, 2 storage tasks.',
+      referenceLabel: 'Shift',
+      referenceId: 'SHIFT-AM-0212',
+    ),
+    LogEntry(
+      id: 'L010',
+      time: 'Feb 11',
+      timeAgo: '2d ago',
       category: 'Relocation',
       userName: 'Employee Mike',
-      description: 'Pallet relocation from Receiving to Zone A-4.',
+      description:
+          'Pallet relocation from Receiving to B7-N4-C1. Heavy item (Steel Cable 10m Roll, 12kg).',
       referenceLabel: 'Location',
-      referenceId: 'BIN-404-X',
+      referenceId: 'B7-N4-C1',
     ),
   ];
-
-  // Warehouse Grid (simplified for the visual display)
-  static List<WarehouseCell> generateWarehouseGrid({int floor = 0}) {
-    final cells = <WarehouseCell>[];
-    const width = 6;
-    const height = 3;
-
-    final occupied = {'0-0', '0-1', '0-4', '1-0', '1-1', '1-4', '2-2', '2-4'};
-
-    for (int y = 0; y < height; y++) {
-      for (int x = 0; x < width; x++) {
-        final key = '$y-$x';
-        final isOcc = occupied.contains(key);
-        cells.add(
-          WarehouseCell(
-            x: x,
-            y: y,
-            floor: floor,
-            isSlot: true,
-            isRoad: false,
-            isOccupied: isOcc,
-            productId: isOcc
-                ? 'B7-${(y * width + x + 1).toString().padLeft(2, '0')}'
-                : null,
-          ),
-        );
-      }
-    }
-    return cells;
-  }
 }

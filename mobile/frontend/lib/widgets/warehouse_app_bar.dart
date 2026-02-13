@@ -41,7 +41,7 @@ class WarehouseAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
       centerTitle: true,
-      actions: const [SyncIndicator(), SizedBox(width: 12)],
+      actions: const [SizedBox(width: 12)],
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(1),
         child: Container(
@@ -49,37 +49,6 @@ class WarehouseAppBar extends StatelessWidget implements PreferredSizeWidget {
           color: AppColors.primary.withValues(alpha: 0.1),
         ),
       ),
-    );
-  }
-}
-
-class SyncIndicator extends StatelessWidget {
-  const SyncIndicator({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 8,
-          height: 8,
-          decoration: const BoxDecoration(
-            color: AppColors.primary,
-            shape: BoxShape.circle,
-          ),
-        ),
-        const SizedBox(width: 6),
-        const Text(
-          'SYNCED',
-          style: TextStyle(
-            color: AppColors.primary,
-            fontSize: 11,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 1.5,
-          ),
-        ),
-      ],
     );
   }
 }

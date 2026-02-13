@@ -41,27 +41,7 @@ class AppDrawer extends StatelessWidget {
                       color: AppColors.textMain,
                     ),
                   ),
-                  Row(
-                    children: [
-                      Container(
-                        width: 8,
-                        height: 8,
-                        decoration: const BoxDecoration(
-                          color: AppColors.primary,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      const Text(
-                        'Synced',
-                        style: TextStyle(
-                          color: AppColors.primary,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
+                  const SizedBox(),
                 ],
               ),
             ),

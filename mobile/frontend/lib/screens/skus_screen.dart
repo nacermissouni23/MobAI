@@ -13,6 +13,8 @@ class SkusScreen extends StatefulWidget {
 }
 
 class _SkusScreenState extends State<SkusScreen> {
+  String _searchQuery = '';
+
   @override
   void initState() {
     super.initState();
@@ -28,6 +30,15 @@ class _SkusScreenState extends State<SkusScreen> {
       body: BlocBuilder<SkusCubit, SkusState>(
         builder: (context, state) {
           if (state is SkusLoaded) {
+            final filtered = _searchQuery.isEmpty
+                ? state.skus
+                : state.skus.where((s) {
+                    final q = _searchQuery.toLowerCase();
+                    return s.name.toLowerCase().contains(q) ||
+                        s.skuCode.toLowerCase().contains(q) ||
+                        (s.locationLabel?.toLowerCase().contains(q) ?? false) ||
+                        (s.category?.toLowerCase().contains(q) ?? false);
+                  }).toList();
             return Stack(
               children: [
                 Column(
@@ -36,6 +47,7 @@ class _SkusScreenState extends State<SkusScreen> {
                     Padding(
                       padding: const EdgeInsets.all(16),
                       child: TextField(
+                        onChanged: (val) => setState(() => _searchQuery = val),
                         decoration: InputDecoration(
                           hintText: 'Search by name or ID...',
                           prefixIcon: const Icon(
@@ -62,9 +74,9 @@ class _SkusScreenState extends State<SkusScreen> {
                     Expanded(
                       child: ListView.builder(
                         padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
-                        itemCount: state.skus.length,
+                        itemCount: filtered.length,
                         itemBuilder: (context, index) {
-                          return _SkuCard(sku: state.skus[index]);
+                          return _SkuCard(sku: filtered[index]);
                         },
                       ),
                     ),
@@ -136,106 +148,113 @@ class _SkuCard extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.primary.withValues(alpha: 0.05)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.of(context).pushNamed('/edit-sku', arguments: sku);
+        },
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: AppColors.primary.withValues(alpha: 0.05),
             ),
-          ],
-        ),
-        child: Row(
-          children: [
-            // Product Image Placeholder
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: AppColors.primary.withValues(alpha: 0.1),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              // Product Image Placeholder
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: AppColors.primary.withValues(alpha: 0.1),
+                  ),
+                ),
+                child: Icon(
+                  Icons.image,
+                  color: AppColors.primary.withValues(alpha: 0.3),
+                  size: 28,
                 ),
               ),
-              child: Icon(
-                Icons.image,
-                color: AppColors.primary.withValues(alpha: 0.3),
-                size: 28,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    sku.name,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textMain,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    sku.skuCode,
-                    style: const TextStyle(
-                      fontFamily: 'monospace',
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 3,
-                        ),
-                        decoration: BoxDecoration(
-                          color: statusBg,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          sku.stockStatusLabel,
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            color: statusText,
-                          ),
-                        ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      sku.name,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textMain,
                       ),
-                      if (sku.locationLabel != null) ...[
-                        const SizedBox(width: 8),
-                        Text(
-                          sku.locationLabel!,
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.primary.withValues(alpha: 0.5),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      sku.skuCode,
+                      style: const TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: statusBg,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            sku.stockStatusLabel,
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: statusText,
+                            ),
                           ),
                         ),
+                        if (sku.locationLabel != null) ...[
+                          const SizedBox(width: 8),
+                          Text(
+                            sku.locationLabel!,
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.primary.withValues(alpha: 0.5),
+                            ),
+                          ),
+                        ],
                       ],
-                    ],
-                  ),
-                ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Icon(
-              Icons.chevron_right,
-              color: AppColors.primary.withValues(alpha: 0.3),
-            ),
-          ],
+              Icon(
+                Icons.chevron_right,
+                color: AppColors.primary.withValues(alpha: 0.3),
+              ),
+            ],
+          ),
         ),
       ),
     );

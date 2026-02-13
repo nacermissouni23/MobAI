@@ -39,4 +39,22 @@ class ChariotsCubit extends Cubit<ChariotsState> {
       emit(ChariotsLoaded([...current, newChariot]));
     }
   }
+
+  void updateChariot(Chariot updatedChariot) {
+    if (state is ChariotsLoaded) {
+      final current = (state as ChariotsLoaded).chariots;
+      final updated = current.map((c) {
+        if (c.id == updatedChariot.id) return updatedChariot;
+        return c;
+      }).toList();
+      emit(ChariotsLoaded(updated));
+    }
+  }
+
+  void deleteChariot(String chariotId) {
+    if (state is ChariotsLoaded) {
+      final current = (state as ChariotsLoaded).chariots;
+      emit(ChariotsLoaded(current.where((c) => c.id != chariotId).toList()));
+    }
+  }
 }

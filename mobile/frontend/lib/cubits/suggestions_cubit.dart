@@ -33,4 +33,34 @@ class SuggestionsCubit extends Cubit<SuggestionsState> {
       emit(SuggestionsLoaded(current.where((s) => s.id != id).toList()));
     }
   }
+
+  void overrideSuggestion({
+    required String id,
+    required String justification,
+    String? newFromLocation,
+    String? newToLocation,
+  }) {
+    if (state is SuggestionsLoaded) {
+      final current = (state as SuggestionsLoaded).suggestions;
+      final updated = current.map((s) {
+        if (s.id == id) {
+          return s.copyWith(
+            isOverridden: true,
+            overrideJustification: justification,
+            overriddenFromLocation: newFromLocation,
+            overriddenToLocation: newToLocation,
+          );
+        }
+        return s;
+      }).toList();
+      emit(SuggestionsLoaded(updated));
+    }
+  }
+
+  void refuseSuggestion(String id) {
+    if (state is SuggestionsLoaded) {
+      final current = (state as SuggestionsLoaded).suggestions;
+      emit(SuggestionsLoaded(current.where((s) => s.id != id).toList()));
+    }
+  }
 }

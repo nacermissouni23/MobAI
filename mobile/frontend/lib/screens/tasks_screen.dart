@@ -100,10 +100,21 @@ class _TaskCard extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 16),
       child: GestureDetector(
         onTap: () {
-          if (task.type == TaskType.pick) {
-            Navigator.of(context).pushNamed('/pick-1', arguments: task);
-          } else if (task.type == TaskType.receipt) {
-            Navigator.of(context).pushNamed('/new-receipt', arguments: task);
+          switch (task.type) {
+            case TaskType.pick:
+              Navigator.of(context).pushNamed('/pick-1', arguments: task);
+              break;
+            case TaskType.deliver:
+              Navigator.of(
+                context,
+              ).pushNamed('/delivery-task', arguments: task);
+              break;
+            case TaskType.store:
+              Navigator.of(context).pushNamed('/store-task', arguments: task);
+              break;
+            case TaskType.receipt:
+              Navigator.of(context).pushNamed('/new-receipt', arguments: task);
+              break;
           }
         },
         child: Container(

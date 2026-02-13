@@ -48,4 +48,22 @@ class SkusCubit extends Cubit<SkusState> {
       emit(SkusLoaded([...current, newSku]));
     }
   }
+
+  void updateSku(Sku updatedSku) {
+    if (state is SkusLoaded) {
+      final current = (state as SkusLoaded).skus;
+      final updated = current.map((s) {
+        if (s.id == updatedSku.id) return updatedSku;
+        return s;
+      }).toList();
+      emit(SkusLoaded(updated));
+    }
+  }
+
+  void deleteSku(String skuId) {
+    if (state is SkusLoaded) {
+      final current = (state as SkusLoaded).skus;
+      emit(SkusLoaded(current.where((s) => s.id != skuId).toList()));
+    }
+  }
 }

@@ -94,8 +94,9 @@ class _PickValidateScreenState extends State<PickValidateScreen> {
                             Expanded(
                               child: GestureDetector(
                                 onTap: () {
-                                  if (_quantity > 1)
+                                  if (_quantity > 1) {
                                     setState(() => _quantity--);
+                                  }
                                 },
                                 child: Container(
                                   height: 80,

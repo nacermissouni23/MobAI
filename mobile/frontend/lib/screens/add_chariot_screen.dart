@@ -87,16 +87,6 @@ class _AddChariotScreenState extends State<AddChariotScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  // Cancel button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('CANCEL'),
-                    ),
-                  ),
-                  const SizedBox(height: 48),
                   // Decorative element
                   Center(
                     child: Container(
@@ -145,21 +135,37 @@ class _AddChariotScreenState extends State<AddChariotScreen> {
                 ),
               ),
             ),
-            child: SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  if (_idController.text.isNotEmpty) {
-                    context.read<ChariotsCubit>().addChariot(
-                      _idController.text,
-                    );
-                    Navigator.of(context).pop();
-                  }
-                },
-                icon: const Icon(Icons.save),
-                label: const Text('SAVE'),
-              ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    height: 56,
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('CANCEL'),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  flex: 2,
+                  child: SizedBox(
+                    height: 56,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        if (_idController.text.isNotEmpty) {
+                          context.read<ChariotsCubit>().addChariot(
+                            _idController.text,
+                          );
+                          Navigator.of(context).pop();
+                        }
+                      },
+                      icon: const Icon(Icons.save),
+                      label: const Text('SAVE'),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
