@@ -12,12 +12,14 @@ class NewReceiptScreen extends StatefulWidget {
 class _NewReceiptScreenState extends State<NewReceiptScreen> {
   final _nameController = TextEditingController();
   final _idController = TextEditingController();
+  final _quantityController = TextEditingController(text: '1');
   int _quantity = 1;
 
   @override
   void dispose() {
     _nameController.dispose();
     _idController.dispose();
+    _quantityController.dispose();
     super.dispose();
   }
 
@@ -95,7 +97,12 @@ class _NewReceiptScreenState extends State<NewReceiptScreen> {
                         // Minus
                         GestureDetector(
                           onTap: () {
-                            if (_quantity > 1) setState(() => _quantity--);
+                            if (_quantity > 1) {
+                              setState(() {
+                                _quantity--;
+                                _quantityController.text = _quantity.toString();
+                              });
+                            }
                           },
                           child: Container(
                             width: 64,
@@ -111,22 +118,54 @@ class _NewReceiptScreenState extends State<NewReceiptScreen> {
                             ),
                           ),
                         ),
-                        // Value
+                        // Value - TextField
                         Expanded(
                           child: Center(
-                            child: Text(
-                              _quantity.toString().padLeft(2, '0'),
+                            child: TextField(
+                              controller: _quantityController,
+                              keyboardType: TextInputType.number,
+                              textAlign: TextAlign.center,
                               style: const TextStyle(
                                 fontSize: 48,
                                 fontWeight: FontWeight.w900,
                                 color: AppColors.textMain,
                               ),
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.zero,
+                                isDense: true,
+                              ),
+                              onChanged: (value) {
+                                if (value.isEmpty) {
+                                  return;
+                                }
+                                int? newQty = int.tryParse(value);
+                                if (newQty != null && newQty > 0) {
+                                  setState(() => _quantity = newQty);
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Value must be greater than 0',
+                                      ),
+                                      duration: Duration(seconds: 2),
+                                    ),
+                                  );
+                                  _quantityController.text = _quantity
+                                      .toString();
+                                }
+                              },
                             ),
                           ),
                         ),
                         // Plus
                         GestureDetector(
-                          onTap: () => setState(() => _quantity++),
+                          onTap: () {
+                            setState(() {
+                              _quantity++;
+                              _quantityController.text = _quantity.toString();
+                            });
+                          },
                           child: Container(
                             width: 64,
                             height: 64,

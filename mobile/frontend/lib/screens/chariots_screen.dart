@@ -78,10 +78,7 @@ class _ChariotsScreenState extends State<ChariotsScreen> {
                               letterSpacing: 2.0,
                             ),
                           ),
-                          Icon(
-                            Icons.filter_list,
-                            color: AppColors.primary.withValues(alpha: 0.4),
-                          ),
+                          
                         ],
                       ),
                     ),
