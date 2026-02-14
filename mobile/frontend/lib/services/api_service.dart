@@ -8,7 +8,7 @@ class ApiService {
   // Android emulator uses 10.0.2.2 to reach host localhost.
   // For physical devices / iOS simulator, use your machine's LAN IP.
   // Change this to your PC's LAN IP when testing on a physical device.
-  static const String _lanIp = '10.80.19.1';
+  static const String _lanIp = '10.64.182.246';
 
   static String get _baseUrl {
     if (kIsWeb) return 'http://localhost:8000';

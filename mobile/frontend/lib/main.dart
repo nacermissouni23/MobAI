@@ -8,7 +8,7 @@ import 'providers/data_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
@@ -19,54 +19,32 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final apiService = ApiService();
-
+    final api = ApiService();
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider(apiService)),
-        ChangeNotifierProvider(create: (_) => DataProvider(apiService)),
+        ChangeNotifierProvider(
+          create: (_) => AuthProvider(api)..tryAutoLogin(),
+        ),
+        ChangeNotifierProvider(create: (_) => DataProvider(api)),
       ],
       child: MaterialApp(
-        title: 'WMS - Warehouse Management',
+        title: 'WarehouseAI',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
           useMaterial3: true,
         ),
-        home: const AuthGate(),
+        home: Consumer<AuthProvider>(
+          builder: (ctx, auth, _) {
+            if (auth.loading) {
+              return const Scaffold(
+                body: Center(child: CircularProgressIndicator()),
+              );
+            }
+            return auth.isLoggedIn ? const HomeScreen() : const LoginScreen();
+          },
+        ),
       ),
     );
-  }
-}
-
-class AuthGate extends StatefulWidget {
-  const AuthGate({super.key});
-
-  @override
-  State<AuthGate> createState() => _AuthGateState();
-}
-
-class _AuthGateState extends State<AuthGate> {
-  bool _checking = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _tryAutoLogin();
-  }
-
-  Future<void> _tryAutoLogin() async {
-    await context.read<AuthProvider>().tryAutoLogin();
-    if (mounted) setState(() => _checking = false);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_checking) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
-
-    final auth = context.watch<AuthProvider>();
-    return auth.isLoggedIn ? const HomeScreen() : const LoginScreen();
   }
 }
