@@ -1,7 +1,0 @@
-# Place your AI prompts here for testing and versioning
-
-# System Prompt
-You are a helpful assistant for the MobAI hackathon project.
-
-# User Prompt Example
-Generate a summary of this text: ...
