@@ -17,12 +17,34 @@ class SuggestionsScreen extends StatelessWidget {
       body: BlocBuilder<OrdersCubit, OrdersState>(
         builder: (context, state) {
           if (state is OrdersLoaded) {
+            // Only show orders that need review (pending or ai_generated)
+            final reviewable = state.orders
+                .where(
+                  (o) =>
+                      o.status == OrderStatus.pending ||
+                      o.status == OrderStatus.aiGenerated,
+                )
+                .toList();
             return SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ...state.orders.map((s) => _SuggestionCard(order: s)),
+                  if (reviewable.isEmpty)
+                    const Center(
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 60),
+                        child: Text(
+                          'No pending suggestions',
+                          style: TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    )
+                  else
+                    ...reviewable.map((s) => _SuggestionCard(order: s)),
                 ],
               ),
             );

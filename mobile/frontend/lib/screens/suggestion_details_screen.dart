@@ -19,6 +19,9 @@ class _SuggestionDetailsScreenState extends State<SuggestionDetailsScreen> {
   late Order _order;
   late int _quantity;
   late TextEditingController _justificationController;
+  late TextEditingController _altFloorController;
+  late TextEditingController _altRowController;
+  late TextEditingController _altColController;
   bool _isOverriding = false;
 
   @override
@@ -48,34 +51,90 @@ class _SuggestionDetailsScreenState extends State<SuggestionDetailsScreen> {
         );
     _quantity = _order.quantity;
     _justificationController = TextEditingController();
+    _altFloorController = TextEditingController();
+    _altRowController = TextEditingController();
+    _altColController = TextEditingController();
   }
 
   @override
   void dispose() {
     _justificationController.dispose();
+    _altFloorController.dispose();
+    _altRowController.dispose();
+    _altColController.dispose();
     super.dispose();
   }
 
   void _handleOverrideConfirm() {
+    final currentUser = context.read<AuthCubit>().currentUser;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Override Justification'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Please provide a reason for overriding this suggestion.',
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _justificationController,
-              maxLines: 3,
-              decoration: const InputDecoration(
-                hintText: 'Enter justification here...',
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Please provide a reason and alternate location.'),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _justificationController,
+                maxLines: 3,
+                decoration: const InputDecoration(
+                  hintText: 'Enter justification here...',
+                  border: OutlineInputBorder(),
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              const Text(
+                'ALTERNATE LOCATION',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.grey,
+                  letterSpacing: 1,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _altFloorController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: 'Floor',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextField(
+                      controller: _altRowController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: 'Row',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextField(
+                      controller: _altColController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: 'Col',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
         actions: [
           TextButton(
@@ -85,13 +144,25 @@ class _SuggestionDetailsScreenState extends State<SuggestionDetailsScreen> {
           ElevatedButton(
             onPressed: () {
               if (_justificationController.text.isNotEmpty) {
+                final altLocation = _altFloorController.text.isNotEmpty
+                    ? 'F${_altFloorController.text}-R${_altRowController.text}-C${_altColController.text}'
+                    : null;
+                final reason = altLocation != null
+                    ? '${_justificationController.text} [Alt: $altLocation]'
+                    : _justificationController.text;
                 context.read<OrdersCubit>().overrideOrder(
                   orderId: _order.id,
-                  overriddenBy: 'current_user',
-                  reason: _justificationController.text,
+                  overriddenBy: currentUser?.id ?? 'unknown',
+                  reason: reason,
                 );
                 Navigator.pop(ctx);
                 setState(() => _isOverriding = false);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Suggestion overridden successfully'),
+                    backgroundColor: Colors.orange,
+                  ),
+                );
               }
             },
             child: const Text('Confirm'),
@@ -103,6 +174,12 @@ class _SuggestionDetailsScreenState extends State<SuggestionDetailsScreen> {
 
   void _handleValidate() {
     context.read<OrdersCubit>().validateOrder(_order.id);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Suggestion validated and approved'),
+        backgroundColor: Colors.green,
+      ),
+    );
     Navigator.of(context).pop();
   }
 

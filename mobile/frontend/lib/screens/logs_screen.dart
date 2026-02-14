@@ -270,8 +270,9 @@ class _LogCard extends StatelessWidget {
         'Location: F${entry.storageFloor}-R${entry.storageRow}-C${entry.storageCol}',
       );
     }
-    if (entry.overrideReason != null)
+    if (entry.overrideReason != null) {
       parts.add('Reason: ${entry.overrideReason}');
+    }
     return parts.isEmpty ? 'Operation ${entry.operationId}' : parts.join(' • ');
   }
 

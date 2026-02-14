@@ -80,15 +80,15 @@ class _AddUserScreenState extends State<AddUserScreen> {
                         items: const [
                           DropdownMenuItem(
                             value: UserRole.admin,
-                            child: Text('Administrator'),
+                            child: Text('Admin'),
                           ),
                           DropdownMenuItem(
                             value: UserRole.supervisor,
-                            child: Text('Manager'),
+                            child: Text('Supervisor'),
                           ),
                           DropdownMenuItem(
                             value: UserRole.employee,
-                            child: Text('Operator'),
+                            child: Text('Employee'),
                           ),
                         ],
                         onChanged: (value) =>
@@ -155,17 +155,30 @@ class _AddUserScreenState extends State<AddUserScreen> {
   }
 
   void _save() {
-    if (_nameController.text.isNotEmpty &&
-        _idController.text.isNotEmpty &&
-        _selectedRole != null) {
-      context.read<UsersCubit>().addUser(
-        name: _nameController.text,
-        email:
-            '${_idController.text.toLowerCase().replaceAll(' ', '.')}@warehouse.local',
-        role: _selectedRole!,
+    final name = _nameController.text.trim();
+    final id = _idController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (name.isEmpty ||
+        id.isEmpty ||
+        _selectedRole == null ||
+        password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please fill in all fields'),
+          backgroundColor: Colors.red,
+        ),
       );
-      Navigator.of(context).pop();
+      return;
     }
+
+    context.read<UsersCubit>().addUser(
+      name: name,
+      email: '${id.toLowerCase().replaceAll(' ', '.')}@warehouse.local',
+      role: _selectedRole!,
+      password: password,
+    );
+    Navigator.of(context).pop();
   }
 
   InputDecoration _inputDecoration(String hint) {

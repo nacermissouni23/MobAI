@@ -52,22 +52,22 @@ class AuthCubit extends Cubit<AuthState> {
       // Try by email first
       var user = await _userRepo.authenticate(identifier, password);
 
-      // Fallback: find by name (for demo / legacy compatibility)
+      // Fallback: find by name and verify password
       if (user == null) {
         final byName = await _userRepo.query(
           where: 'LOWER(name) = ? AND is_active = 1',
           whereArgs: [identifier.toLowerCase()],
           limit: 1,
         );
-        if (byName.isNotEmpty) {
+        if (byName.isNotEmpty && byName.first.password == password) {
           user = byName.first;
         }
       }
 
-      // Fallback: find by id (for demo / legacy compatibility)
+      // Fallback: find by id and verify password
       if (user == null) {
         final byId = await _userRepo.getById(identifier);
-        if (byId != null && byId.isActive) {
+        if (byId != null && byId.isActive && byId.password == password) {
           user = byId;
         }
       }

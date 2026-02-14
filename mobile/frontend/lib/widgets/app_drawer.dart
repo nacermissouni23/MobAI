@@ -68,21 +68,24 @@ class AppDrawer extends StatelessWidget {
                       label: 'Warehouse',
                       onTap: () => _navigate(context, AppPage.warehouse),
                     ),
-                  _MenuItem(
-                    icon: Icons.inventory_2,
-                    label: 'SKU',
-                    onTap: () => _navigate(context, AppPage.skus),
-                  ),
-                  _MenuItem(
-                    icon: Icons.shopping_cart,
-                    label: 'Chariots',
-                    onTap: () => _navigate(context, AppPage.chariots),
-                  ),
-                  _MenuItem(
-                    icon: Icons.lightbulb_outline,
-                    label: 'Suggestions',
-                    onTap: () => _navigate(context, AppPage.suggestions),
-                  ),
+                  if (userRole != UserRole.employee)
+                    _MenuItem(
+                      icon: Icons.inventory_2,
+                      label: 'SKU',
+                      onTap: () => _navigate(context, AppPage.skus),
+                    ),
+                  if (userRole != UserRole.employee)
+                    _MenuItem(
+                      icon: Icons.shopping_cart,
+                      label: 'Chariots',
+                      onTap: () => _navigate(context, AppPage.chariots),
+                    ),
+                  if (userRole != UserRole.employee)
+                    _MenuItem(
+                      icon: Icons.lightbulb_outline,
+                      label: 'Suggestions',
+                      onTap: () => _navigate(context, AppPage.suggestions),
+                    ),
                   if (userRole == UserRole.employee)
                     _MenuItem(
                       icon: Icons.assignment,

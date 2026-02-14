@@ -14,11 +14,152 @@ class WarehouseScreen extends StatefulWidget {
 
 class _WarehouseScreenState extends State<WarehouseScreen> {
   bool _editMode = false;
+  Emplacement? _selectedCell;
+  final TransformationController _transformController =
+      TransformationController();
 
   @override
   void initState() {
     super.initState();
     context.read<WarehouseCubit>().loadWarehouse();
+  }
+
+  @override
+  void dispose() {
+    _transformController.dispose();
+    super.dispose();
+  }
+
+  void _onGridTap(TapDownDetails details, WarehouseLoaded state) {
+    if (!_editMode) return;
+
+    // Transform tap position back to grid coords
+    final matrix = _transformController.value;
+    final inverseMatrix = Matrix4.inverted(matrix);
+    // Account for InteractiveViewer padding (8.0)
+    final localOffset = MatrixUtils.transformPoint(
+      inverseMatrix,
+      details.localPosition,
+    );
+    final adjustedX = localOffset.dx - 8.0;
+    final adjustedY = localOffset.dy - 8.0;
+
+    final cellSize = (state.gridWidth * 18.0) / state.gridWidth; // = 18.0
+    final gridX = (adjustedX / cellSize).floor();
+    final gridY = (adjustedY / cellSize).floor();
+
+    if (gridX < 0 ||
+        gridX >= state.gridWidth ||
+        gridY < 0 ||
+        gridY >= state.gridHeight)
+      return;
+
+    // Find the cell
+    final cell = state.cells.cast<Emplacement?>().firstWhere(
+      (c) => c!.x == gridX && c.y == gridY,
+      orElse: () => null,
+    );
+
+    if (cell != null) {
+      setState(() => _selectedCell = cell);
+      _showCellEditDialog(cell, state);
+    }
+  }
+
+  void _showCellEditDialog(Emplacement cell, WarehouseLoaded state) {
+    String selectedType = cell.cellTypeLabel;
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          title: Text('Edit Cell (${cell.x}, ${cell.y})'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Current: ${cell.cellTypeLabel}${cell.isOccupied ? " (occupied)" : ""}',
+                style: const TextStyle(fontSize: 13, color: Colors.grey),
+              ),
+              if (cell.productId != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  'Product: ${cell.productId} (qty: ${cell.quantity})',
+                  style: const TextStyle(fontSize: 13, color: Colors.grey),
+                ),
+              ],
+              const SizedBox(height: 16),
+              const Text(
+                'CELL TYPE',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1,
+                ),
+              ),
+              const SizedBox(height: 8),
+              ...['Slot', 'Obstacle', 'Road', 'Elevator', 'Expedition'].map(
+                (type) => InkWell(
+                  onTap: () => setDialogState(() => selectedType = type),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: Row(
+                      children: [
+                        Icon(
+                          selectedType == type
+                              ? Icons.radio_button_checked
+                              : Icons.radio_button_off,
+                          color: selectedType == type
+                              ? AppColors.primary
+                              : Colors.grey,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 12),
+                        Text(type, style: const TextStyle(fontSize: 14)),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final updated = cell.copyWith(
+                  isSlot: selectedType == 'Slot',
+                  isObstacle: selectedType == 'Obstacle',
+                  isRoad: selectedType == 'Road',
+                  isElevator: selectedType == 'Elevator',
+                  isExpedition: selectedType == 'Expedition',
+                  updatedAt: DateTime.now(),
+                  syncPending: true,
+                );
+                context.read<WarehouseCubit>().updateCell(
+                  state.currentFloor,
+                  cell.x,
+                  cell.y,
+                  updated,
+                );
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Cell (${cell.x}, ${cell.y}) updated to $selectedType',
+                    ),
+                  ),
+                );
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -154,21 +295,26 @@ class _WarehouseScreenState extends State<WarehouseScreen> {
                 const SizedBox(height: 4),
                 // Warehouse Grid - interactive scrollable
                 Expanded(
-                  child: InteractiveViewer(
-                    constrained: false,
-                    boundaryMargin: const EdgeInsets.all(100),
-                    minScale: 0.1,
-                    maxScale: 4.0,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: SizedBox(
-                        width: state.gridWidth * 18.0,
-                        height: state.gridHeight * 18.0,
-                        child: CustomPaint(
-                          painter: _WarehouseGridPainter(
-                            cells: state.cells,
-                            gridWidth: state.gridWidth,
-                            gridHeight: state.gridHeight,
+                  child: GestureDetector(
+                    onTapDown: (details) => _onGridTap(details, state),
+                    child: InteractiveViewer(
+                      transformationController: _transformController,
+                      constrained: false,
+                      boundaryMargin: const EdgeInsets.all(100),
+                      minScale: 0.1,
+                      maxScale: 4.0,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: SizedBox(
+                          width: state.gridWidth * 18.0,
+                          height: state.gridHeight * 18.0,
+                          child: CustomPaint(
+                            painter: _WarehouseGridPainter(
+                              cells: state.cells,
+                              gridWidth: state.gridWidth,
+                              gridHeight: state.gridHeight,
+                              selectedCell: _editMode ? _selectedCell : null,
+                            ),
                           ),
                         ),
                       ),
@@ -258,11 +404,13 @@ class _WarehouseGridPainter extends CustomPainter {
   final List<Emplacement> cells;
   final int gridWidth;
   final int gridHeight;
+  final Emplacement? selectedCell;
 
   _WarehouseGridPainter({
     required this.cells,
     required this.gridWidth,
     required this.gridHeight,
+    this.selectedCell,
   });
 
   @override
@@ -309,10 +457,27 @@ class _WarehouseGridPainter extends CustomPainter {
         canvas.drawRect(rect, borderPaint);
       }
     }
+
+    // Draw selected cell highlight
+    if (selectedCell != null) {
+      final selectedRect = Rect.fromLTWH(
+        selectedCell!.x * cellSize,
+        selectedCell!.y * cellSize,
+        cellSize,
+        cellSize,
+      );
+      final highlightPaint = Paint()
+        ..color = Colors.red
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.0;
+      canvas.drawRect(selectedRect, highlightPaint);
+    }
   }
 
   @override
   bool shouldRepaint(covariant _WarehouseGridPainter oldDelegate) {
-    return oldDelegate.cells != cells || oldDelegate.gridWidth != gridWidth;
+    return oldDelegate.cells != cells ||
+        oldDelegate.gridWidth != gridWidth ||
+        oldDelegate.selectedCell != selectedCell;
   }
 }

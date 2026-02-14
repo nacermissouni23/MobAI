@@ -161,11 +161,18 @@ class _ReportItem extends StatelessWidget {
 
   String _getTitle() {
     final parts = <String>[];
-    if (report.physicalDamage) parts.add('Physical Damage');
-    if (report.missingQuantity > 0)
+    if (report.physicalDamage) {
+      parts.add('Physical Damage');
+    }
+    if (report.missingQuantity > 0) {
       parts.add('Missing: ${report.missingQuantity}');
-    if (report.extraQuantity > 0) parts.add('Extra: ${report.extraQuantity}');
-    if (parts.isEmpty) parts.add('Report');
+    }
+    if (report.extraQuantity > 0) {
+      parts.add('Extra: ${report.extraQuantity}');
+    }
+    if (parts.isEmpty) {
+      parts.add('Report');
+    }
     return parts.join(' • ');
   }
 
@@ -225,7 +232,108 @@ class _ReportItem extends StatelessWidget {
           ],
         ),
         trailing: Icon(Icons.chevron_right, color: Colors.grey.shade400),
-        onTap: () {},
+        onTap: () => _showReportDetail(context),
+      ),
+    );
+  }
+
+  void _showReportDetail(BuildContext context) {
+    final dateStr = DateFormat(
+      'MMM dd, yyyy • hh:mm a',
+    ).format(report.createdAt);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(
+              _getIcon(),
+              color: report.hasAnomaly ? Colors.orange : Colors.grey,
+            ),
+            const SizedBox(width: 8),
+            const Expanded(child: Text('Report Details')),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _detailRow('Report ID', report.id),
+              _detailRow('Operation ID', report.operationId),
+              _detailRow('Reported By', report.reportedBy),
+              _detailRow('Date', dateStr),
+              const Divider(),
+              if (report.physicalDamage)
+                _detailRow('Physical Damage', 'Yes', valueColor: Colors.red),
+              if (report.missingQuantity > 0)
+                _detailRow(
+                  'Missing Quantity',
+                  '${report.missingQuantity}',
+                  valueColor: Colors.orange,
+                ),
+              if (report.extraQuantity > 0)
+                _detailRow(
+                  'Extra Quantity',
+                  '${report.extraQuantity}',
+                  valueColor: Colors.blue,
+                ),
+              if (!report.hasAnomaly)
+                _detailRow('Status', 'No anomalies', valueColor: Colors.green),
+              if (report.notes != null && report.notes!.isNotEmpty) ...[
+                const Divider(),
+                const Text(
+                  'Notes',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.grey,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(report.notes!, style: const TextStyle(fontSize: 14)),
+              ],
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _detailRow(String label, String value, {Color? valueColor}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 120,
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey.shade600,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: valueColor ?? AppColors.textMain,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
