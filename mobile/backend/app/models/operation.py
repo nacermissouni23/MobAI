@@ -13,32 +13,22 @@ from app.core.enums import OperationType, OperationStatus
 class Operation(BaseModel):
     """Represents a single warehouse operation."""
 
+    product_id: Optional[str] = Field(default=None, description="Product ID")
+    quantity: int = Field(default=0, ge=0, description="Quantity")
     type: OperationType = Field(..., description="Operation type")
+    status: OperationStatus = Field(default=OperationStatus.PENDING, description="Lifecycle status")
     employee_id: Optional[str] = Field(default=None, description="Assigned employee ID")
     validator_id: Optional[str] = Field(default=None, description="Supervisor who validated")
     validated_at: Optional[datetime] = Field(default=None, description="Validation timestamp")
     chariot_id: Optional[str] = Field(default=None, description="Assigned chariot ID")
     order_id: Optional[str] = Field(default=None, description="Parent order ID")
-    destination_x: Optional[int] = Field(default=None, description="Destination X")
-    destination_y: Optional[int] = Field(default=None, description="Destination Y")
-    destination_z: Optional[int] = Field(default=None, description="Destination Z")
-    destination_floor: Optional[int] = Field(default=None, description="Destination floor")
-    source_x: Optional[int] = Field(default=None, description="Source X")
-    source_y: Optional[int] = Field(default=None, description="Source Y")
-    source_z: Optional[int] = Field(default=None, description="Source Z")
-    source_floor: Optional[int] = Field(default=None, description="Source floor")
-    warehouse_id: Optional[str] = Field(default=None, description="Emplacement location ID")
-    status: OperationStatus = Field(default=OperationStatus.PENDING, description="Operation status")
-    started_at: Optional[datetime] = Field(default=None, description="Start timestamp")
-    completed_at: Optional[datetime] = Field(default=None, description="Completion timestamp")
-    product_id: Optional[str] = Field(default=None, description="Product ID")
-    quantity: int = Field(default=0, ge=0, description="Quantity to move")
+    emplacement_id: Optional[str] = Field(default=None, description="Destination emplacement ID")
+    source_emplacement_id: Optional[str] = Field(default=None, description="Source emplacement ID")
+    suggested_route: Optional[list] = Field(default=None, description="AI-suggested route coordinates")
 
     def to_firestore(self) -> dict:
         """Convert to Firestore-compatible dict."""
         data = super().to_firestore()
-        for dt_field in ("validated_at", "started_at", "completed_at"):
-            val = getattr(self, dt_field)
-            if val:
-                data[dt_field] = val.isoformat()
+        if self.validated_at:
+            data["validated_at"] = self.validated_at.isoformat()
         return data

@@ -18,8 +18,9 @@ class ProductCreate(BaseModel):
     volume_pcs: Optional[float] = Field(default=None, ge=0)
     poids: Optional[float] = Field(default=None, ge=0)
     is_gerbable: bool = False
-    demand_frequency: float = Field(default=0.0, ge=0)
-    reception_frequency: float = Field(default=0.0, ge=0)
+    demand_freq: float = Field(default=0.0, ge=0)
+    reception_freq: float = Field(default=0.0, ge=0)
+    delivery_freq: float = Field(default=0.0, ge=0)
 
 
 class ProductUpdate(BaseModel):
@@ -33,8 +34,9 @@ class ProductUpdate(BaseModel):
     volume_pcs: Optional[float] = Field(default=None, ge=0)
     poids: Optional[float] = Field(default=None, ge=0)
     is_gerbable: Optional[bool] = None
-    demand_frequency: Optional[float] = Field(default=None, ge=0)
-    reception_frequency: Optional[float] = Field(default=None, ge=0)
+    demand_freq: Optional[float] = Field(default=None, ge=0)
+    reception_freq: Optional[float] = Field(default=None, ge=0)
+    delivery_freq: Optional[float] = Field(default=None, ge=0)
 
 
 class ProductResponse(BaseModel):
@@ -50,8 +52,9 @@ class ProductResponse(BaseModel):
     volume_pcs: Optional[float] = None
     poids: Optional[float] = None
     is_gerbable: bool
-    demand_frequency: float
-    reception_frequency: float
+    demand_freq: float
+    reception_freq: float
+    delivery_freq: float
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
 

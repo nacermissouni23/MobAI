@@ -17,6 +17,7 @@ from app.routes import (
     emplacement,
     chariots,
     orders,
+    order_logs,
     operations,
     inventory,
     reports,
@@ -57,6 +58,7 @@ def create_app() -> FastAPI:
     app.include_router(emplacement.router, prefix="/api/emplacements", tags=["Emplacements"])
     app.include_router(chariots.router, prefix="/api/chariots", tags=["Chariots"])
     app.include_router(orders.router, prefix="/api/orders", tags=["Orders"])
+    app.include_router(order_logs.router, prefix="/api/order-logs", tags=["Order Logs"])
     app.include_router(operations.router, prefix="/api/operations", tags=["Operations"])
     app.include_router(inventory.router, prefix="/api/inventory", tags=["Inventory"])
     app.include_router(reports.router, prefix="/api/reports", tags=["Reports"])

@@ -37,5 +37,5 @@ class ProductRepository(BaseRepository):
         return await self.query(filters=filters if filters else None)
 
     async def get_high_demand(self, threshold: float = 1.0) -> List[Dict[str, Any]]:
-        """Get products with demand_frequency above threshold."""
-        return await self.query(filters=[("demand_frequency", ">=", threshold)])
+        """Get products with demand_freq above threshold."""
+        return await self.query(filters=[("demand_freq", ">=", threshold)])

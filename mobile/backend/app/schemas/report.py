@@ -11,8 +11,7 @@ class ReportCreate(BaseModel):
     operation_id: str
     missing_quantity: int = Field(default=0, ge=0)
     physical_damage: bool = False
-    extra_quantity: int = Field(default=0, ge=0)
-    notes: Optional[str] = None
+    extra_quality: int = Field(default=0, ge=0)
 
 
 class ReportResponse(BaseModel):
@@ -21,9 +20,7 @@ class ReportResponse(BaseModel):
     operation_id: str
     missing_quantity: int
     physical_damage: bool
-    extra_quantity: int
-    notes: Optional[str] = None
-    reported_by: str
+    extra_quality: int
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
 

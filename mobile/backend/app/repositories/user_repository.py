@@ -26,6 +26,11 @@ class UserRepository(BaseRepository):
         """Get all employees."""
         return await self.query(filters=[("role", "==", UserRole.EMPLOYEE.value)])
 
+    async def get_active_employees(self) -> List[Dict[str, Any]]:
+        """Get all active employees (is_active=True)."""
+        employees = await self.get_employees()
+        return [e for e in employees if e.get("is_active", True)]
+
     async def get_filtered(
         self, role: Optional[UserRole] = None
     ) -> List[Dict[str, Any]]:

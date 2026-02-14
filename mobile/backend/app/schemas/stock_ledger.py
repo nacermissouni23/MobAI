@@ -5,8 +5,6 @@ Stock ledger schemas for request/response validation.
 from typing import Optional
 from pydantic import BaseModel, Field
 
-from app.core.enums import OperationType
-
 
 class StockAdjustment(BaseModel):
     """Schema for manual stock adjustment."""
@@ -16,7 +14,6 @@ class StockAdjustment(BaseModel):
     floor: int = Field(default=0, ge=0)
     product_id: str
     quantity: int = Field(..., description="Positive to add, negative to remove")
-    reason: Optional[str] = None
 
 
 class StockLedgerResponse(BaseModel):
@@ -29,9 +26,6 @@ class StockLedgerResponse(BaseModel):
     product_id: str
     quantity: int
     recorded_at: Optional[str] = None
-    operation_id: Optional[str] = None
-    operation_type: Optional[OperationType] = None
-    user_id: Optional[str] = None
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
 

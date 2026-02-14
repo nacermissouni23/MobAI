@@ -21,5 +21,6 @@ class Product(BaseModel):
     volume_pcs: Optional[float] = Field(default=None, ge=0, description="Volume per unit (m³)")
     poids: Optional[float] = Field(default=None, ge=0, description="Weight per unit (kg)")
     is_gerbable: bool = Field(default=False, description="Whether product is stackable")
-    demand_frequency: float = Field(default=0.0, ge=0, description="Average demand frequency")
-    reception_frequency: float = Field(default=0.0, ge=0, description="Average reception frequency")
+    demand_freq: float = Field(default=0.0, ge=0, description="Average demand frequency")
+    reception_freq: float = Field(default=0.0, ge=0, description="Average reception frequency")
+    delivery_freq: float = Field(default=0.0, ge=0, description="Average delivery frequency")

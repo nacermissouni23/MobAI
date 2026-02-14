@@ -7,7 +7,6 @@ from typing import Dict, Any, List, Optional
 
 from fastapi import APIRouter, Depends, Query
 
-from app.core.enums import OperationType
 from app.repositories.emplacement_repository import EmplacementRepository
 from app.repositories.stock_ledger_repository import StockLedgerRepository
 from app.schemas.stock_ledger import StockAdjustment, StockLedgerResponse, StockSummaryResponse
@@ -50,14 +49,12 @@ async def get_product_stock(
 @router.get("/ledger", response_model=List[StockLedgerResponse])
 async def get_ledger(
     product_id: Optional[str] = Query(default=None, description="Filter by product"),
-    operation_id: Optional[str] = Query(default=None, description="Filter by operation"),
     limit: int = Query(default=100, ge=1, le=1000, description="Max entries"),
     _user: Dict[str, Any] = Depends(get_current_user),
 ):
     """Get stock ledger entries with optional filters."""
     entries = await ledger_repo.get_filtered(
         product_id=product_id,
-        operation_id=operation_id,
         limit=limit,
     )
     return [StockLedgerResponse(**e) for e in entries]
@@ -104,9 +101,6 @@ async def adjust_stock(
         "product_id": data.product_id,
         "quantity": data.quantity,
         "recorded_at": datetime.utcnow().isoformat(),
-        "operation_id": None,
-        "operation_type": None,
-        "user_id": current_user["id"],
     }
     created = await ledger_repo.create(ledger_data)
     return StockLedgerResponse(**created)

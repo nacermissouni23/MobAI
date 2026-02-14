@@ -59,7 +59,7 @@ class ForecastingEngine:
         all_products = await self.product_repo.get_all()
         products = [
             p for p in all_products
-            if p.get("actif", True) and p.get("demand_frequency", 0) >= min_demand_frequency
+            if p.get("actif", True) and p.get("demand_freq", 0) >= min_demand_frequency
         ]
 
         if not products:
@@ -87,8 +87,8 @@ class ForecastingEngine:
             total_consumed = sum(recent_outbound) if recent_outbound else 0
             daily_rate = total_consumed / max(days, 1)
 
-            # Apply demand_frequency as a weight
-            demand_freq = product.get("demand_frequency", 1.0)
+            # Apply demand_freq as a weight
+            demand_freq = product.get("demand_freq", 1.0)
             weighted_rate = daily_rate * (1 + demand_freq * 0.1)
 
             # Step 4: Get current stock

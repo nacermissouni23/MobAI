@@ -28,23 +28,13 @@ class OrderType(str, Enum):
 
 
 class OperationStatus(str, Enum):
-    """Status of a warehouse operation."""
+    """Lifecycle status of an operation."""
     PENDING = "pending"
     IN_PROGRESS = "in_progress"
-    COMPLETED = "completed"
-    FAILED = "failed"
+    VALIDATED = "validated"
 
 
 class OrderStatus(str, Enum):
-    """Status of a warehouse order."""
+    """Lifecycle status of an order."""
     PENDING = "pending"
-    AI_GENERATED = "ai_generated"
     VALIDATED = "validated"
-    OVERRIDDEN = "overridden"
-    COMPLETED = "completed"
-
-
-class DeliveryStatus(str, Enum):
-    """Status of a delivery."""
-    VALIDATED = "validated"
-    FAILED = "failed"

@@ -10,39 +10,39 @@ from app.core.enums import OperationType
 
 class OperationLogCreate(BaseModel):
     """Schema for creating an operation log entry."""
-    operation_id: str
-    employee_id: Optional[str] = None
+    operation_id: Optional[str] = None
+    action: Optional[str] = None
     product_id: Optional[str] = None
     quantity: int = Field(default=0, ge=0)
     type: Optional[OperationType] = None
-    overrider_id: Optional[str] = None
+    employee_id: Optional[str] = None
+    overridor_id: Optional[str] = None
+    overriden_at: Optional[str] = None
+    validator_id: Optional[str] = None
+    validated_at: Optional[str] = None
     chariot_id: Optional[str] = None
-    storage_floor: Optional[int] = None
-    storage_row: Optional[int] = None
-    storage_col: Optional[int] = None
-    override_reason: Optional[str] = None
-    ai_suggested_floor: Optional[int] = None
-    ai_suggested_row: Optional[int] = None
-    ai_suggested_col: Optional[int] = None
+    order_id: Optional[str] = None
+    emplacement_id: Optional[str] = None
+    date: Optional[str] = None
 
 
 class OperationLogResponse(BaseModel):
     """Schema for operation log response."""
     id: str
-    operation_id: str
-    employee_id: Optional[str] = None
+    operation_id: Optional[str] = None
+    action: Optional[str] = None
     product_id: Optional[str] = None
     quantity: int = 0
     type: Optional[OperationType] = None
-    overrider_id: Optional[str] = None
+    employee_id: Optional[str] = None
+    overridor_id: Optional[str] = None
+    overriden_at: Optional[str] = None
+    validator_id: Optional[str] = None
+    validated_at: Optional[str] = None
     chariot_id: Optional[str] = None
-    storage_floor: Optional[int] = None
-    storage_row: Optional[int] = None
-    storage_col: Optional[int] = None
-    override_reason: Optional[str] = None
-    ai_suggested_floor: Optional[int] = None
-    ai_suggested_row: Optional[int] = None
-    ai_suggested_col: Optional[int] = None
+    order_id: Optional[str] = None
+    emplacement_id: Optional[str] = None
+    date: Optional[str] = None
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
 

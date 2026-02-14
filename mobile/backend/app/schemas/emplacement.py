@@ -20,7 +20,6 @@ class EmplacementCreate(BaseModel):
     product_id: Optional[str] = None
     quantity: int = Field(default=0, ge=0)
     is_occupied: bool = False
-    location_code: Optional[str] = None
 
 
 class EmplacementUpdate(BaseModel):
@@ -33,7 +32,6 @@ class EmplacementUpdate(BaseModel):
     product_id: Optional[str] = None
     quantity: Optional[int] = Field(default=None, ge=0)
     is_occupied: Optional[bool] = None
-    location_code: Optional[str] = None
 
 
 class EmplacementResponse(BaseModel):
@@ -51,7 +49,6 @@ class EmplacementResponse(BaseModel):
     product_id: Optional[str] = None
     quantity: int
     is_occupied: bool
-    location_code: Optional[str] = None
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
 

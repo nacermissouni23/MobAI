@@ -25,10 +25,6 @@ class EmplacementRepository(BaseRepository):
         ])
         return results[0] if results else None
 
-    async def get_by_location_code(self, code: str) -> Optional[Dict[str, Any]]:
-        """Find a location by its human-readable code."""
-        return await self.find_one("location_code", code)
-
     async def get_slots_by_floor(self, floor: int) -> List[Dict[str, Any]]:
         """Get all storage slots on a specific floor."""
         return await self.query(filters=[
