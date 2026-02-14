@@ -34,6 +34,4 @@ class ReportRepository(BaseRepository):
             filters.append(("physical_damage", "==", True))
         return await self.query(filters=filters if filters else None)
 
-    async def get_by_reporter(self, user_id: str) -> List[Dict[str, Any]]:
-        """Get all reports filed by a specific user."""
-        return await self.query(filters=[("reported_by", "==", user_id)])
+

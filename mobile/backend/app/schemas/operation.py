@@ -11,45 +11,37 @@ from app.core.enums import OperationType, OperationStatus
 class OperationCreate(BaseModel):
     """Schema for creating an operation."""
     type: OperationType
+    product_id: Optional[str] = None
+    quantity: int = Field(default=0, ge=0)
     employee_id: Optional[str] = None
     chariot_id: Optional[str] = None
     order_id: Optional[str] = None
-    product_id: Optional[str] = None
-    quantity: int = Field(default=0, ge=0)
-    source_x: Optional[int] = None
-    source_y: Optional[int] = None
-    source_z: Optional[int] = None
-    source_floor: Optional[int] = None
-    destination_x: Optional[int] = None
-    destination_y: Optional[int] = None
-    destination_z: Optional[int] = None
-    destination_floor: Optional[int] = None
-    warehouse_id: Optional[str] = None
+    emplacement_id: Optional[str] = None
+    source_emplacement_id: Optional[str] = None
+
+
+class OperationApprove(BaseModel):
+    """Schema for supervisor approval (optionally with override values)."""
+    emplacement_id: Optional[str] = None
+    source_emplacement_id: Optional[str] = None
+    quantity: Optional[int] = None
 
 
 class OperationResponse(BaseModel):
     """Schema for operation response."""
     id: str
+    product_id: Optional[str] = None
+    quantity: int
     type: OperationType
+    status: OperationStatus = OperationStatus.PENDING
     employee_id: Optional[str] = None
     validator_id: Optional[str] = None
     validated_at: Optional[str] = None
     chariot_id: Optional[str] = None
     order_id: Optional[str] = None
-    destination_x: Optional[int] = None
-    destination_y: Optional[int] = None
-    destination_z: Optional[int] = None
-    destination_floor: Optional[int] = None
-    source_x: Optional[int] = None
-    source_y: Optional[int] = None
-    source_z: Optional[int] = None
-    source_floor: Optional[int] = None
     emplacement_id: Optional[str] = None
-    status: OperationStatus
-    started_at: Optional[str] = None
-    completed_at: Optional[str] = None
-    product_id: Optional[str] = None
-    quantity: int
+    source_emplacement_id: Optional[str] = None
+    suggested_route: Optional[list] = None
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
 

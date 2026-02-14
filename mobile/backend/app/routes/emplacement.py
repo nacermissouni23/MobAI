@@ -6,7 +6,6 @@ from typing import Dict, Any, List, Optional
 
 from fastapi import APIRouter, Depends, Query
 
-from app.core.exceptions import NotFoundError
 from app.repositories.emplacement_repository import EmplacementRepository
 from app.schemas.emplacement import (
     EmplacementCreate,
@@ -40,18 +39,6 @@ async def get_location(
 ):
     """Get a single emplacement location by ID."""
     location = await emplacement_repo.get_by_id_or_raise(location_id)
-    return EmplacementResponse(**location)
-
-
-@router.get("/locations/code/{location_code}", response_model=EmplacementResponse)
-async def get_location_by_code(
-    location_code: str,
-    _user: Dict[str, Any] = Depends(get_current_user),
-):
-    """Get an emplacement location by its human-readable code."""
-    location = await emplacement_repo.get_by_location_code(location_code)
-    if not location:
-        raise NotFoundError("Emplacement location", location_code)
     return EmplacementResponse(**location)
 
 

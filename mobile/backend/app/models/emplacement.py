@@ -23,4 +23,3 @@ class Emplacement(BaseModel):
     product_id: Optional[str] = Field(default=None, description="Stored product ID")
     quantity: int = Field(default=0, ge=0, description="Quantity stored")
     is_occupied: bool = Field(default=False, description="Whether slot is occupied")
-    location_code: Optional[str] = Field(default=None, description="Human-readable location code (e.g. A-01-02-1)")

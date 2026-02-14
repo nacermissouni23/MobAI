@@ -51,7 +51,6 @@ class AuthService:
             "password": hashed,
             "role": data.role.value,
             "is_active": True,
-            "emplacement_id": data.emplacement_id,
         }
 
         created = await self.user_repo.create(user_data)

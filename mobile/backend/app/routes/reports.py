@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, Query
 
 from app.repositories.report_repository import ReportRepository
 from app.schemas.report import ReportCreate, ReportResponse
-from app.utils.dependencies import get_supervisor_user
+from app.utils.dependencies import get_supervisor_user, get_current_user
 
 router = APIRouter()
 report_repo = ReportRepository()
@@ -41,9 +41,9 @@ async def get_report(
 @router.post("/", response_model=ReportResponse, status_code=201)
 async def create_report(
     data: ReportCreate,
-    current_user: Dict[str, Any] = Depends(get_supervisor_user),
+    current_user: Dict[str, Any] = Depends(get_current_user),
 ):
-    """Create a new anomaly report. Supervisor/Admin only."""
+    """Create a new anomaly report. Any authenticated user (including employees)."""
     report_data = data.model_dump()
     report_data["reported_by"] = current_user["id"]
     created = await report_repo.create(report_data)
@@ -83,9 +83,9 @@ async def get_report_statistics(
     total = len(all_reports)
     damage_count = sum(1 for r in all_reports if r.get("physical_damage", False))
     total_missing = sum(r.get("missing_quantity", 0) for r in all_reports)
-    total_extra = sum(r.get("extra_quantity", 0) for r in all_reports)
+    total_extra = sum(r.get("extra_quality", 0) for r in all_reports)
     with_missing = sum(1 for r in all_reports if r.get("missing_quantity", 0) > 0)
-    with_extra = sum(1 for r in all_reports if r.get("extra_quantity", 0) > 0)
+    with_extra = sum(1 for r in all_reports if r.get("extra_quality", 0) > 0)
 
     return {
         "total_reports": total,
@@ -93,5 +93,5 @@ async def get_report_statistics(
         "reports_with_missing": with_missing,
         "reports_with_extra": with_extra,
         "total_missing_quantity": total_missing,
-        "total_extra_quantity": total_extra,
+        "total_extra_quality": total_extra,
     }

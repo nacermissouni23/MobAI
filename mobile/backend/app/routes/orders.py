@@ -1,57 +1,58 @@
 """
-Order routes: CRUD, AI generation, validation, override, and completion.
+Order routes: CRUD + validation workflow for orders.
+
+Workflow:
+- Supervisor creates 'command' order (status=pending)
+- Supervisor validates → logs to OrderLog → triggers receipt operation
+- AI generates 'preparation' orders via forecasting
 """
 
+import random
 from datetime import datetime
 from typing import Dict, Any, List, Optional
 
 from fastapi import APIRouter, Depends, Query
 
-from app.core.enums import OrderType, OrderStatus
-from app.core.exceptions import ValidationError
+from app.core.enums import OrderType, OrderStatus, OperationType, OperationStatus
 from app.repositories.order_repository import OrderRepository
-from app.repositories.emplacement_repository import EmplacementRepository
-from app.schemas.order import OrderCreate, OrderOverride, OrderResponse, OrderLineSchema
+from app.repositories.order_log_repository import OrderLogRepository
+from app.repositories.operation_repository import OperationRepository
+from app.repositories.operation_log_repository import OperationLogRepository
+from app.repositories.user_repository import UserRepository
+from app.schemas.order import OrderCreate, OrderResponse
+from app.schemas.order_log import OrderLogResponse
 from app.ai.forecasting import forecasting_engine
-from app.ai.picking_optimizer import picking_optimizer
 from app.utils.dependencies import get_current_user, get_supervisor_user
+from app.utils.logger import logger
 
 router = APIRouter()
 order_repo = OrderRepository()
-emplacement_repo = EmplacementRepository()
+order_log_repo = OrderLogRepository()
+operation_repo = OperationRepository()
+operation_log_repo = OperationLogRepository()
+user_repo = UserRepository()
+
+
+# ── CRUD ─────────────────────────────────────────────────────────
 
 
 @router.get("/", response_model=List[OrderResponse])
 async def list_orders(
     order_type: Optional[OrderType] = Query(default=None, description="Filter by order type"),
-    status_filter: Optional[OrderStatus] = Query(default=None, description="Filter by status"),
-    ai_generated_only: bool = Query(default=False, description="Only AI-generated orders"),
+    status: Optional[OrderStatus] = Query(default=None, description="Filter by status"),
     _user: Dict[str, Any] = Depends(get_current_user),
 ):
     """Get all orders with optional filters."""
-    orders = await order_repo.get_filtered(
-        order_type=order_type,
-        status_filter=status_filter,
-        ai_generated_only=ai_generated_only,
-    )
+    orders = await order_repo.get_filtered(order_type=order_type, status=status)
     return [OrderResponse(**o) for o in orders]
 
 
-@router.get("/pending/all", response_model=List[OrderResponse])
-async def get_pending_orders(
-    _user: Dict[str, Any] = Depends(get_current_user),
+@router.get("/pending", response_model=List[OrderResponse])
+async def list_pending_orders(
+    _user: Dict[str, Any] = Depends(get_supervisor_user),
 ):
-    """Get all pending orders."""
-    orders = await order_repo.get_pending_orders()
-    return [OrderResponse(**o) for o in orders]
-
-
-@router.get("/overridden/all", response_model=List[OrderResponse])
-async def get_overridden_orders(
-    _supervisor: Dict[str, Any] = Depends(get_supervisor_user),
-):
-    """Get all overridden orders. Supervisor/Admin only."""
-    orders = await order_repo.get_overridden_orders()
+    """Get all pending orders awaiting validation. Supervisor/Admin only."""
+    orders = await order_repo.get_pending()
     return [OrderResponse(**o) for o in orders]
 
 
@@ -65,152 +66,46 @@ async def get_order(
     return OrderResponse(**order)
 
 
-@router.post("/command", response_model=OrderResponse, status_code=201)
-async def create_command_order(
-    data: OrderCreate,
-    current_user: Dict[str, Any] = Depends(get_supervisor_user),
+@router.get("/{order_id}/logs", response_model=List[OrderLogResponse])
+async def get_order_logs(
+    order_id: str,
+    _user: Dict[str, Any] = Depends(get_current_user),
 ):
-    """Create a manual command order. Supervisor/Admin only."""
-    order_data = {
-        "type": OrderType.COMMAND.value,
-        "status": OrderStatus.PENDING.value,
-        "lines": [line.model_dump() for line in data.lines],
-        "generated_by_ai": False,
-    }
-    created = await order_repo.create(order_data)
-    return OrderResponse(**created)
+    """Get all log entries for a specific order."""
+    logs = await order_log_repo.get_by_order(order_id)
+    return [OrderLogResponse(**log) for log in logs]
 
 
-@router.post("/preparation/generate", response_model=OrderResponse, status_code=201)
-async def generate_preparation_order(
-    current_user: Dict[str, Any] = Depends(get_supervisor_user),
-):
-    """
-    Generate an AI-powered preparation order based on demand forecasting.
-    Supervisor/Admin only.
-    """
-    predictions = await forecasting_engine.predict_preparation_orders()
-
-    if not predictions:
-        raise ValidationError("No products require preparation at this time")
-
-    # Convert predictions to order lines
-    lines = []
-    for pred in predictions:
-        lines.append({
-            "product_id": pred["product_id"],
-            "sku": pred.get("sku"),
-            "product_name": pred.get("product_name"),
-            "quantity": pred["predicted_quantity"],
-        })
-
-    order_data = {
-        "type": OrderType.PREPARATION.value,
-        "status": OrderStatus.AI_GENERATED.value,
-        "lines": lines,
-        "generated_by_ai": True,
-    }
-
-    created = await order_repo.create(order_data)
-    return OrderResponse(**created)
-
-
-@router.post("/picking/generate", response_model=dict, status_code=201)
-async def generate_picking_order(
+@router.post("/", response_model=OrderResponse, status_code=201)
+async def create_order(
     data: OrderCreate,
     current_user: Dict[str, Any] = Depends(get_supervisor_user),
 ):
     """
-    Generate an AI-optimized picking order with route optimization.
-    Supervisor/Admin only.
+    Create a new order (status=pending). Supervisor/Admin only.
+
+    For 'command' orders: supervisor specifies product_id and quantity.
     """
-    # First create the order
-    order_lines_data = [line.model_dump() for line in data.lines]
-
-    # Optimize the picking route
-    route_result = await picking_optimizer.optimize_order_picking(order_lines_data)
-
-    # Build order with optimized lines (reordered by route)
-    optimized_lines = []
-    for stop in route_result.get("route", []):
-        optimized_lines.append({
-            "product_id": stop.get("product_id", ""),
-            "sku": stop.get("sku"),
-            "product_name": stop.get("product_name"),
-            "quantity": stop.get("pick_quantity", 0),
-            "source_x": stop.get("x"),
-            "source_y": stop.get("y"),
-            "source_z": stop.get("z"),
-            "source_floor": stop.get("floor"),
-        })
-
-    # Fall back to original lines if route optimization returned nothing
-    if not optimized_lines:
-        optimized_lines = order_lines_data
-
-    order_data = {
-        "type": OrderType.PICKING.value,
-        "status": OrderStatus.AI_GENERATED.value,
-        "lines": optimized_lines,
-        "generated_by_ai": True,
-    }
-
+    order_data = data.model_dump()
+    order_data["type"] = order_data.get("type", OrderType.COMMAND.value)
+    if isinstance(order_data["type"], OrderType):
+        order_data["type"] = order_data["type"].value
+    order_data["status"] = OrderStatus.PENDING.value
+    order_data["supervisor_id"] = current_user["id"]
     created = await order_repo.create(order_data)
 
-    return {
-        "order": OrderResponse(**created).model_dump(),
-        "route": route_result,
-    }
+    # Log order creation
+    await order_log_repo.create({
+        "order_id": created["id"],
+        "action": "created",
+        "order_type": order_data["type"],
+        "supervisor_id": current_user["id"],
+        "product_id": order_data.get("product_id"),
+        "quantity": order_data.get("quantity", 0),
+        "date": datetime.utcnow().isoformat(),
+    })
 
-
-@router.put("/{order_id}/override", response_model=OrderResponse)
-async def override_order(
-    order_id: str,
-    data: OrderOverride,
-    current_user: Dict[str, Any] = Depends(get_supervisor_user),
-):
-    """Override an AI-generated order. Supervisor/Admin only."""
-    order = await order_repo.get_by_id_or_raise(order_id)
-
-    update_data = {
-        "status": OrderStatus.OVERRIDDEN.value,
-        "overridden_by": current_user["id"],
-        "override_reason": data.override_reason,
-    }
-
-    if data.lines is not None:
-        update_data["lines"] = [line.model_dump() for line in data.lines]
-
-    updated = await order_repo.update(order_id, update_data)
-    return OrderResponse(**updated)
-
-
-@router.put("/{order_id}/validate", response_model=OrderResponse)
-async def validate_order(
-    order_id: str,
-    current_user: Dict[str, Any] = Depends(get_supervisor_user),
-):
-    """Validate an order. Supervisor/Admin only."""
-    update_data = {
-        "status": OrderStatus.VALIDATED.value,
-    }
-    updated = await order_repo.update(order_id, update_data)
-    return OrderResponse(**updated)
-
-
-@router.put("/{order_id}/complete", response_model=OrderResponse)
-async def complete_order(
-    order_id: str,
-    current_user: Dict[str, Any] = Depends(get_current_user),
-):
-    """Mark an order as completed."""
-    update_data = {
-        "status": OrderStatus.COMPLETED.value,
-        "completed_at": datetime.utcnow().isoformat(),
-        "completed_by": current_user["id"],
-    }
-    updated = await order_repo.update(order_id, update_data)
-    return OrderResponse(**updated)
+    return OrderResponse(**created)
 
 
 @router.delete("/{order_id}", status_code=204)
@@ -220,3 +115,158 @@ async def delete_order(
 ):
     """Delete an order. Supervisor/Admin only."""
     await order_repo.delete(order_id)
+
+
+# ── VALIDATION WORKFLOW ──────────────────────────────────────────
+
+
+@router.put("/{order_id}/validate", response_model=OrderResponse)
+async def validate_order(
+    order_id: str,
+    current_user: Dict[str, Any] = Depends(get_supervisor_user),
+):
+    """
+    Validate a pending order. Supervisor/Admin only.
+
+    For 'command' orders:
+    - Sets order status to 'validated'
+    - Logs to OrderLog
+    - Creates a 'receipt' operation assigned to a random active employee
+    - Logs the operation creation to OperationLog
+    """
+    order = await order_repo.get_by_id_or_raise(order_id)
+
+    if order.get("status") == OrderStatus.VALIDATED.value:
+        from app.core.exceptions import ConflictError
+        raise ConflictError("Order is already validated")
+
+    now = datetime.utcnow().isoformat()
+
+    # Update order status
+    updated_order = await order_repo.update(order_id, {
+        "status": OrderStatus.VALIDATED.value,
+        "validator_id": current_user["id"],
+        "validated_at": now,
+    })
+
+    # Log order validation
+    await order_log_repo.create({
+        "order_id": order_id,
+        "action": "validated",
+        "order_type": order.get("type"),
+        "supervisor_id": current_user["id"],
+        "product_id": order.get("product_id"),
+        "quantity": order.get("quantity", 0),
+        "date": now,
+    })
+
+    # Trigger receipt operation for 'command' orders
+    order_type = order.get("type")
+    if order_type == OrderType.COMMAND.value:
+        await _create_receipt_from_order(order, order_id, current_user)
+
+    return OrderResponse(**updated_order)
+
+
+# ── FORECASTING ──────────────────────────────────────────────────
+
+
+@router.post("/generate-preparation", response_model=List[OrderResponse])
+async def generate_preparation_orders(
+    days: Optional[int] = Query(default=None, description="Historical days for forecasting"),
+    min_demand_freq: float = Query(default=0.5, description="Minimum demand frequency"),
+    current_user: Dict[str, Any] = Depends(get_supervisor_user),
+):
+    """
+    Generate preparation orders using the AI forecaster. Supervisor/Admin only.
+
+    The forecaster predicts which products will need delivery soon
+    and creates 'preparation' orders for them.
+    """
+    predictions = await forecasting_engine.predict_preparation_orders(
+        days=days,
+        min_demand_frequency=min_demand_freq,
+    )
+
+    created_orders = []
+    for pred in predictions:
+        order_data = {
+            "type": OrderType.PREPARATION.value,
+            "status": OrderStatus.PENDING.value,
+            "supervisor_id": current_user["id"],
+            "product_id": pred["product_id"],
+            "quantity": pred["predicted_quantity"],
+        }
+        created = await order_repo.create(order_data)
+
+        # Log preparation order creation
+        await order_log_repo.create({
+            "order_id": created["id"],
+            "action": "created",
+            "order_type": OrderType.PREPARATION.value,
+            "supervisor_id": current_user["id"],
+            "product_id": pred["product_id"],
+            "quantity": pred["predicted_quantity"],
+            "date": datetime.utcnow().isoformat(),
+        })
+
+        created_orders.append(OrderResponse(**created))
+
+    return created_orders
+
+
+# ── HELPER FUNCTIONS ─────────────────────────────────────────────
+
+
+async def _create_receipt_from_order(
+    order: Dict[str, Any],
+    order_id: str,
+    current_user: Dict[str, Any],
+) -> None:
+    """
+    Create a receipt operation triggered by command order validation.
+
+    - Assigns to a random active employee
+    - chariot_id is null (no chariot for receipt)
+    - Logs creation to OperationLog
+    """
+    # Pick a random active employee
+    active_employees = await user_repo.get_active_employees()
+    employee_id = None
+    if active_employees:
+        employee = random.choice(active_employees)
+        employee_id = employee["id"]
+    else:
+        logger.warning("No active employees available for receipt operation")
+
+    now = datetime.utcnow().isoformat()
+
+    op_data = {
+        "type": OperationType.RECEIPT.value,
+        "status": OperationStatus.PENDING.value,
+        "product_id": order.get("product_id"),
+        "quantity": order.get("quantity", 0),
+        "employee_id": employee_id,
+        "chariot_id": None,  # no chariot for receipt
+        "order_id": order_id,
+        "emplacement_id": None,  # employee goes to expedition zone
+        "source_emplacement_id": None,
+    }
+    created_op = await operation_repo.create(op_data)
+
+    # Log operation creation
+    await operation_log_repo.create({
+        "operation_id": created_op["id"],
+        "action": "created",
+        "type": OperationType.RECEIPT.value,
+        "product_id": order.get("product_id"),
+        "quantity": order.get("quantity", 0),
+        "employee_id": employee_id,
+        "order_id": order_id,
+        "date": now,
+    })
+
+    logger.info(
+        f"Receipt operation {created_op['id']} created for order {order_id}, "
+        f"assigned to employee {employee_id}"
+    )

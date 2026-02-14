@@ -5,7 +5,8 @@ from app.models.user import User
 from app.models.product import Product
 from app.models.emplacement import Emplacement
 from app.models.chariot import Chariot
-from app.models.order import Order, OrderLine
+from app.models.order import Order
+from app.models.order_log import OrderLog
 from app.models.operation import Operation
 from app.models.operation_log import OperationLog
 from app.models.report import Report
@@ -18,7 +19,7 @@ __all__ = [
     "Emplacement",
     "Chariot",
     "Order",
-    "OrderLine",
+    "OrderLog",
     "Operation",
     "OperationLog",
     "Report",
