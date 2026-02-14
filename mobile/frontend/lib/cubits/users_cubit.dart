@@ -1,9 +1,11 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/data/models/models.dart';
-import 'package:frontend/data/mock_data.dart';
+import 'package:frontend/data/models/user.dart';
+import 'package:frontend/data/enums.dart';
+import 'package:frontend/data/repositories/user_repository.dart';
 
-// States
+// ── States ──────────────────────────────────────────────────
+
 abstract class UsersState extends Equatable {
   const UsersState();
   @override
@@ -12,60 +14,89 @@ abstract class UsersState extends Equatable {
 
 class UsersInitial extends UsersState {}
 
+class UsersLoading extends UsersState {}
+
 class UsersLoaded extends UsersState {
-  final List<AppUser> users;
+  final List<User> users;
   const UsersLoaded(this.users);
   @override
   List<Object?> get props => [users];
 }
 
-// Cubit
+class UsersError extends UsersState {
+  final String message;
+  const UsersError(this.message);
+  @override
+  List<Object?> get props => [message];
+}
+
+// ── Cubit ───────────────────────────────────────────────────
+
 class UsersCubit extends Cubit<UsersState> {
-  UsersCubit() : super(UsersInitial());
+  final UserRepository _userRepo;
 
-  void loadUsers() {
-    emit(const UsersLoaded(MockData.users));
+  UsersCubit({required UserRepository userRepository})
+    : _userRepo = userRepository,
+      super(UsersInitial());
+
+  Future<void> loadUsers() async {
+    emit(UsersLoading());
+    try {
+      final users = await _userRepo.getAllSorted();
+      emit(UsersLoaded(users));
+    } catch (e) {
+      emit(UsersError('Failed to load users: $e'));
+    }
   }
 
-  void addUser({
-    required String fullName,
-    required String id,
+  Future<void> addUser({
+    required String name,
+    required String email,
     required UserRole role,
-  }) {
-    if (state is UsersLoaded) {
-      final current = (state as UsersLoaded).users;
-      final newUser = AppUser(id: id, fullName: fullName, role: role);
-      emit(UsersLoaded([...current, newUser]));
+    String password = '',
+  }) async {
+    try {
+      final now = DateTime.now();
+      final user = User(
+        id: _userRepo.generateId(),
+        name: name,
+        email: email,
+        password: password,
+        role: role,
+        createdAt: now,
+        updatedAt: now,
+      );
+      await _userRepo.insert(user);
+      await loadUsers();
+    } catch (e) {
+      emit(UsersError('Failed to add user: $e'));
     }
   }
 
-  void updateUser(AppUser updatedUser) {
-    if (state is UsersLoaded) {
-      final current = (state as UsersLoaded).users;
-      final updated = current.map((u) {
-        if (u.id == updatedUser.id) return updatedUser;
-        return u;
-      }).toList();
-      emit(UsersLoaded(updated));
+  Future<void> updateUser(User updatedUser) async {
+    try {
+      await _userRepo.updateEntity(updatedUser);
+      await loadUsers();
+    } catch (e) {
+      emit(UsersError('Failed to update user: $e'));
     }
   }
 
-  void toggleUserActive(String userId) {
-    if (state is UsersLoaded) {
-      final current = (state as UsersLoaded).users;
-      final updated = current.map((u) {
-        if (u.id == userId) return u.copyWith(isActive: !u.isActive);
-        return u;
-      }).toList();
-      emit(UsersLoaded(updated));
+  Future<void> toggleUserActive(String userId) async {
+    try {
+      await _userRepo.toggleActive(userId);
+      await loadUsers();
+    } catch (e) {
+      emit(UsersError('Failed to toggle user: $e'));
     }
   }
 
-  void deleteUser(String userId) {
-    if (state is UsersLoaded) {
-      final current = (state as UsersLoaded).users;
-      final updated = current.where((u) => u.id != userId).toList();
-      emit(UsersLoaded(updated));
+  Future<void> deleteUser(String userId) async {
+    try {
+      await _userRepo.softDelete(userId);
+      await loadUsers();
+    } catch (e) {
+      emit(UsersError('Failed to delete user: $e'));
     }
   }
 }

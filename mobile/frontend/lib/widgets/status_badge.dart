@@ -1,52 +1,75 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/config/theme.dart';
-import 'package:frontend/data/models/models.dart';
+import 'package:frontend/data/enums.dart';
 
-/// Reusable status badge for task statuses.
-class TaskStatusBadge extends StatelessWidget {
-  final TaskStatus status;
-  const TaskStatusBadge({super.key, required this.status});
+/// Reusable status badge for operation statuses.
+class OperationStatusBadge extends StatelessWidget {
+  final OperationStatus status;
+  const OperationStatusBadge({super.key, required this.status});
 
   @override
   Widget build(BuildContext context) {
     final (Color color, String label, IconData icon) = switch (status) {
-      TaskStatus.completed => (
+      OperationStatus.completed => (
         AppColors.successGreen,
         'COMPLETED',
         Icons.check_circle,
       ),
-      TaskStatus.inProgress => (AppColors.primary, 'IN PROGRESS', Icons.timer),
-      TaskStatus.pending => (AppColors.warning, 'PENDING', Icons.schedule),
+      OperationStatus.inProgress => (
+        AppColors.primary,
+        'IN PROGRESS',
+        Icons.timer,
+      ),
+      OperationStatus.pending => (AppColors.warning, 'PENDING', Icons.schedule),
+      OperationStatus.failed => (Colors.red, 'FAILED', Icons.error),
     };
 
     return _Badge(color: color, label: label, icon: icon);
   }
 }
 
-/// Reusable status badge for suggestion statuses.
-class SuggestionStatusBadge extends StatelessWidget {
-  final SuggestionStatus status;
-  const SuggestionStatusBadge({super.key, required this.status});
+/// Legacy alias so existing screen code referencing TaskStatusBadge still works.
+@Deprecated('Use OperationStatusBadge instead')
+typedef TaskStatusBadge = OperationStatusBadge;
+
+/// Reusable status badge for order statuses.
+class OrderStatusBadge extends StatelessWidget {
+  final OrderStatus status;
+  const OrderStatusBadge({super.key, required this.status});
 
   @override
   Widget build(BuildContext context) {
     final (Color color, String label, IconData icon) = switch (status) {
-      SuggestionStatus.ready => (
+      OrderStatus.validated => (
         AppColors.primary,
-        'READY',
+        'VALIDATED',
         Icons.check_circle,
       ),
-      SuggestionStatus.urgent => (AppColors.warning, 'URGENT', Icons.warning),
-      SuggestionStatus.pending => (
+      OrderStatus.aiGenerated => (
+        AppColors.warning,
+        'AI GENERATED',
+        Icons.auto_awesome,
+      ),
+      OrderStatus.pending => (
         AppColors.textSecondary,
         'PENDING',
         Icons.schedule,
+      ),
+      OrderStatus.overridden => (Colors.orange, 'OVERRIDDEN', Icons.edit),
+      OrderStatus.completed => (
+        AppColors.successGreen,
+        'COMPLETED',
+        Icons.check_circle,
       ),
     };
 
     return _Badge(color: color, label: label, icon: icon);
   }
 }
+
+/// Legacy alias so existing screen code referencing SuggestionStatusBadge still works.
+@Deprecated('Use OrderStatusBadge instead')
+typedef SuggestionStatusBadge = OrderStatusBadge;
 
 class _Badge extends StatelessWidget {
   final Color color;

@@ -6,7 +6,7 @@ import 'package:frontend/data/models/models.dart';
 import 'package:frontend/widgets/widgets.dart';
 
 class EditSkuScreen extends StatefulWidget {
-  final Sku sku;
+  final Product sku;
   const EditSkuScreen({super.key, required this.sku});
 
   @override
@@ -30,22 +30,26 @@ class _EditSkuScreenState extends State<EditSkuScreen> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.sku.name);
-    _codeController = TextEditingController(text: widget.sku.skuCode);
-    _quantityController = TextEditingController(
-      text: widget.sku.quantity.toString(),
-    );
-    _uniteController = TextEditingController(text: '');
+    _codeController = TextEditingController(text: widget.sku.sku);
+    _quantityController = TextEditingController(text: '0');
+    _uniteController = TextEditingController(text: widget.sku.unitOfMeasure);
     _categorieController = TextEditingController(
       text: widget.sku.category ?? '',
     );
-    _colisageFardeauController = TextEditingController(text: '');
-    _colisagePaletteController = TextEditingController(text: '');
-    _volumeController = TextEditingController(text: '');
-    _poidsController = TextEditingController(
-      text: widget.sku.weight.toString(),
+    _colisageFardeauController = TextEditingController(
+      text: (widget.sku.unitsPerBundle ?? 0).toString(),
     );
-    _actif = true;
-    _isGerbable = false;
+    _colisagePaletteController = TextEditingController(
+      text: (widget.sku.unitsPerPallet ?? 0).toString(),
+    );
+    _volumeController = TextEditingController(
+      text: (widget.sku.volumePerUnit ?? 0.0).toString(),
+    );
+    _poidsController = TextEditingController(
+      text: (widget.sku.weight ?? 0.0).toString(),
+    );
+    _actif = widget.sku.isActive;
+    _isGerbable = widget.sku.isStackable;
   }
 
   @override
@@ -96,7 +100,7 @@ class _EditSkuScreenState extends State<EditSkuScreen> {
                   const SizedBox(height: 8),
                   Center(
                     child: Text(
-                      widget.sku.skuCode,
+                      widget.sku.sku,
                       style: const TextStyle(
                         fontSize: 16,
                         fontFamily: 'monospace',
@@ -359,7 +363,7 @@ class _EditSkuScreenState extends State<EditSkuScreen> {
                               isDestructive: true,
                             );
                             if (confirmed && context.mounted) {
-                              context.read<SkusCubit>().deleteSku(
+                              context.read<ProductsCubit>().deleteProduct(
                                 widget.sku.id,
                               );
                               Navigator.of(context).pop();
@@ -382,16 +386,26 @@ class _EditSkuScreenState extends State<EditSkuScreen> {
                         height: 56,
                         child: ElevatedButton.icon(
                           onPressed: () {
-                            context.read<SkusCubit>().updateSku(
+                            context.read<ProductsCubit>().updateProduct(
                               widget.sku.copyWith(
                                 name: _nameController.text,
-                                skuCode: _codeController.text,
-                                quantity:
-                                    int.tryParse(_quantityController.text) ?? 0,
+                                sku: _codeController.text,
                                 category: _categorieController.text,
                                 weight:
                                     double.tryParse(_poidsController.text) ??
                                     widget.sku.weight,
+                                isActive: _actif,
+                                isStackable: _isGerbable,
+                                unitOfMeasure: _uniteController.text,
+                                unitsPerBundle: int.tryParse(
+                                  _colisageFardeauController.text,
+                                ),
+                                unitsPerPallet: int.tryParse(
+                                  _colisagePaletteController.text,
+                                ),
+                                volumePerUnit: double.tryParse(
+                                  _volumeController.text,
+                                ),
                               ),
                             );
                             Navigator.of(context).pop();

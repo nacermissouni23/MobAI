@@ -96,7 +96,7 @@ class _UsersScreenState extends State<UsersScreen> {
 }
 
 class _UserCard extends StatelessWidget {
-  final AppUser user;
+  final User user;
   const _UserCard({required this.user});
 
   @override

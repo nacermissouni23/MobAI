@@ -1,8 +1,10 @@
 export 'auth_cubit.dart';
 export 'navigation_cubit.dart';
-export 'tasks_cubit.dart';
+export 'operations_cubit.dart';
 export 'chariots_cubit.dart';
-export 'skus_cubit.dart';
+export 'products_cubit.dart';
 export 'users_cubit.dart';
-export 'suggestions_cubit.dart';
+export 'orders_cubit.dart';
+export 'reports_cubit.dart';
+export 'logs_cubit.dart';
 export 'warehouse_cubit.dart';

@@ -39,14 +39,15 @@ class TasksScreen extends StatelessWidget {
               }
             : null,
       ),
-      body: BlocBuilder<TasksCubit, TasksState>(
+      body: BlocBuilder<OperationsCubit, OperationsState>(
         builder: (context, state) {
-          if (state is TasksLoaded) {
-            final tasks = state.tasks
+          if (state is OperationsLoaded) {
+            final tasks = state.operations
                 .where(
                   (t) =>
-                      t.status != TaskStatus.completed &&
-                      (t.type == TaskType.pick || t.type == TaskType.store),
+                      t.status != OperationStatus.completed &&
+                      (t.type == OperationType.picking ||
+                          t.type == OperationType.transfer),
                 )
                 .toList();
             return ListView.builder(
@@ -67,19 +68,19 @@ class TasksScreen extends StatelessWidget {
 }
 
 class _TaskCard extends StatelessWidget {
-  final WarehouseTask task;
+  final Operation task;
 
   const _TaskCard({required this.task});
 
-  IconData _getIconForType(TaskType type) {
+  IconData _getIconForType(OperationType type) {
     switch (type) {
-      case TaskType.pick:
+      case OperationType.picking:
         return Icons.location_on;
-      case TaskType.deliver:
+      case OperationType.delivery:
         return Icons.local_shipping;
-      case TaskType.store:
+      case OperationType.transfer:
         return Icons.inventory_2;
-      case TaskType.receipt:
+      case OperationType.receipt:
         return Icons.input;
     }
   }
@@ -94,19 +95,18 @@ class _TaskCard extends StatelessWidget {
       child: GestureDetector(
         onTap: () {
           switch (task.type) {
-            case TaskType.pick:
+            case OperationType.picking:
               Navigator.of(context).pushNamed('/pick-1', arguments: task);
               break;
-            case TaskType.deliver:
+            case OperationType.delivery:
               Navigator.of(
                 context,
               ).pushNamed('/delivery-task', arguments: task);
               break;
-            case TaskType.store:
+            case OperationType.transfer:
               Navigator.of(context).pushNamed('/store-task', arguments: task);
               break;
-            case TaskType.receipt:
-              // For employees, show received receipt verification screen
+            case OperationType.receipt:
               Navigator.of(context).pushNamed(
                 '/received-receipt',
                 arguments: {

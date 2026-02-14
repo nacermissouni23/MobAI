@@ -18,7 +18,7 @@ class _SkusScreenState extends State<SkusScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<SkusCubit>().loadSkus();
+    context.read<ProductsCubit>().loadProducts();
   }
 
   @override
@@ -27,16 +27,15 @@ class _SkusScreenState extends State<SkusScreen> {
       backgroundColor: AppColors.backgroundLight,
       drawer: const AppDrawer(),
       appBar: const WarehouseAppBar(title: 'SKU Management'),
-      body: BlocBuilder<SkusCubit, SkusState>(
+      body: BlocBuilder<ProductsCubit, ProductsState>(
         builder: (context, state) {
-          if (state is SkusLoaded) {
+          if (state is ProductsLoaded) {
             final filtered = _searchQuery.isEmpty
-                ? state.skus
-                : state.skus.where((s) {
+                ? state.products
+                : state.products.where((s) {
                     final q = _searchQuery.toLowerCase();
                     return s.name.toLowerCase().contains(q) ||
-                        s.skuCode.toLowerCase().contains(q) ||
-                        (s.locationLabel?.toLowerCase().contains(q) ?? false) ||
+                        s.sku.toLowerCase().contains(q) ||
                         (s.category?.toLowerCase().contains(q) ?? false);
                   }).toList();
             return Stack(
@@ -72,7 +71,7 @@ class _SkusScreenState extends State<SkusScreen> {
                         padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
                         itemCount: filtered.length,
                         itemBuilder: (context, index) {
-                          return _SkuCard(sku: filtered[index]);
+                          return _ProductCard(product: filtered[index]);
                         },
                       ),
                     ),
@@ -123,35 +122,28 @@ class _SkusScreenState extends State<SkusScreen> {
   }
 }
 
-class _SkuCard extends StatelessWidget {
-  final Sku sku;
+class _ProductCard extends StatelessWidget {
+  final Product product;
 
-  const _SkuCard({required this.sku});
+  const _ProductCard({required this.product});
 
   @override
   Widget build(BuildContext context) {
-    Color statusBg;
-    Color statusText;
-    switch (sku.stockStatus) {
-      case SkuStockStatus.inStock:
-        statusBg = const Color(0xFFDCFCE7);
-        statusText = const Color(0xFF15803D);
-        break;
-      case SkuStockStatus.lowStock:
-        statusBg = const Color(0xFFFFF7ED);
-        statusText = const Color(0xFFC2410C);
-        break;
-      case SkuStockStatus.outOfStock:
-        statusBg = const Color(0xFFFEE2E2);
-        statusText = const Color(0xFFB91C1C);
-        break;
+    final Color statusBg;
+    final Color statusText;
+    if (product.isActive) {
+      statusBg = const Color(0xFFDCFCE7);
+      statusText = const Color(0xFF15803D);
+    } else {
+      statusBg = const Color(0xFFFEE2E2);
+      statusText = const Color(0xFFB91C1C);
     }
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: GestureDetector(
         onTap: () {
-          Navigator.of(context).pushNamed('/edit-sku', arguments: sku);
+          Navigator.of(context).pushNamed('/edit-sku', arguments: product);
         },
         child: Container(
           padding: const EdgeInsets.all(12),
@@ -194,7 +186,7 @@ class _SkuCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      sku.name,
+                      product.name,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -205,7 +197,7 @@ class _SkuCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      sku.skuCode,
+                      product.sku,
                       style: const TextStyle(
                         fontFamily: 'monospace',
                         fontSize: 13,
@@ -226,7 +218,7 @@ class _SkuCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
-                            sku.stockStatusLabel,
+                            product.stockStatusLabel,
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
@@ -234,10 +226,10 @@ class _SkuCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                        if (sku.locationLabel != null) ...[
+                        if (product.category != null) ...[
                           const SizedBox(width: 8),
                           Text(
-                            sku.locationLabel!,
+                            product.category!,
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w700,

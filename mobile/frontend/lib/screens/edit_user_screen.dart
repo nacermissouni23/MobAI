@@ -6,7 +6,7 @@ import 'package:frontend/data/models/models.dart';
 import 'package:frontend/widgets/widgets.dart';
 
 class EditUserScreen extends StatefulWidget {
-  final AppUser user;
+  final User user;
   const EditUserScreen({super.key, required this.user});
 
   @override
@@ -228,7 +228,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
                           onPressed: () {
                             context.read<UsersCubit>().updateUser(
                               widget.user.copyWith(
-                                fullName: _nameController.text,
+                                name: _nameController.text,
                                 role: _selectedRole,
                                 isActive: _isActive,
                               ),

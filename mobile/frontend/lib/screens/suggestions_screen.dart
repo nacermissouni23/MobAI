@@ -14,18 +14,15 @@ class SuggestionsScreen extends StatelessWidget {
       backgroundColor: AppColors.backgroundLight,
       drawer: const AppDrawer(),
       appBar: const WarehouseAppBar(title: 'SUGGESTIONS'),
-      body: BlocBuilder<SuggestionsCubit, SuggestionsState>(
+      body: BlocBuilder<OrdersCubit, OrdersState>(
         builder: (context, state) {
-          if (state is SuggestionsLoaded) {
+          if (state is OrdersLoaded) {
             return SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Suggestion Cards
-                  ...state.suggestions.map(
-                    (s) => _SuggestionCard(suggestion: s),
-                  ),
+                  ...state.orders.map((s) => _SuggestionCard(order: s)),
                 ],
               ),
             );
@@ -38,8 +35,8 @@ class SuggestionsScreen extends StatelessWidget {
 }
 
 class _SuggestionCard extends StatelessWidget {
-  final Suggestion suggestion;
-  const _SuggestionCard({required this.suggestion});
+  final Order order;
+  const _SuggestionCard({required this.order});
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +62,7 @@ class _SuggestionCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${suggestion.typeLabel} PRODUCT ID',
+                    '${order.typeLabel} PRODUCT ID',
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
@@ -75,7 +72,7 @@ class _SuggestionCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    suggestion.typeLabel,
+                    order.typeLabel,
                     style: const TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
@@ -84,7 +81,7 @@ class _SuggestionCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    suggestion.productId,
+                    order.productId,
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
@@ -117,7 +114,7 @@ class _SuggestionCard extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          suggestion.fromLocation,
+                          order.fromLocation,
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
@@ -139,7 +136,7 @@ class _SuggestionCard extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          suggestion.toLocation,
+                          order.toLocation,
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
@@ -158,10 +155,9 @@ class _SuggestionCard extends StatelessWidget {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
-                        Navigator.of(context).pushNamed(
-                          '/suggestion-details',
-                          arguments: suggestion,
-                        );
+                        Navigator.of(
+                          context,
+                        ).pushNamed('/suggestion-details', arguments: order);
                       },
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 12),

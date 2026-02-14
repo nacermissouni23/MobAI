@@ -7,7 +7,7 @@ import 'package:frontend/widgets/widgets.dart';
 
 /// Pick Step 2: Path from elevator to rack + validate.
 class PickValidateScreen extends StatelessWidget {
-  final WarehouseTask task;
+  final Operation task;
   final int pickedQuantity;
 
   const PickValidateScreen({
@@ -17,7 +17,7 @@ class PickValidateScreen extends StatelessWidget {
   });
 
   void _handleValidate(BuildContext context) {
-    context.read<TasksCubit>().completeTask(task.id);
+    context.read<OperationsCubit>().completeOperation(task.id);
     Navigator.of(context).popUntil((route) => route.isFirst);
   }
 

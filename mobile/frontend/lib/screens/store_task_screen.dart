@@ -8,7 +8,7 @@ import 'package:frontend/widgets/widgets.dart';
 /// Screen for completing a storage task.
 /// Allows quantity adjustment but NO override of location/path.
 class StoreTaskScreen extends StatefulWidget {
-  final WarehouseTask task;
+  final Operation task;
   const StoreTaskScreen({super.key, required this.task});
 
   @override
@@ -25,7 +25,7 @@ class _StoreTaskScreenState extends State<StoreTaskScreen> {
   }
 
   void _handleValidate() {
-    context.read<TasksCubit>().completeTask(widget.task.id);
+    context.read<OperationsCubit>().completeOperation(widget.task.id);
     Navigator.of(context).pop();
   }
 
@@ -78,7 +78,7 @@ class _StoreTaskScreenState extends State<StoreTaskScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const TypeBadge(label: 'Store'),
-              TaskStatusBadge(status: widget.task.status),
+              OperationStatusBadge(status: widget.task.status),
             ],
           ),
           const SizedBox(height: 16),

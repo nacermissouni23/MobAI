@@ -122,32 +122,30 @@ class _AddUserScreenState extends State<AddUserScreen> {
             ),
           ),
           // Footer Actions
-          Container(
-            child: SafeArea(
-              top: false,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: ElevatedButton(
-                        onPressed: _save,
-                        child: const Text('SAVE'),
-                      ),
+          SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: _save,
+                      child: const Text('SAVE'),
                     ),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: const Text('CANCEL'),
-                      ),
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('CANCEL'),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -161,8 +159,9 @@ class _AddUserScreenState extends State<AddUserScreen> {
         _idController.text.isNotEmpty &&
         _selectedRole != null) {
       context.read<UsersCubit>().addUser(
-        fullName: _nameController.text,
-        id: _idController.text,
+        name: _nameController.text,
+        email:
+            '${_idController.text.toLowerCase().replaceAll(' ', '.')}@warehouse.local',
         role: _selectedRole!,
       );
       Navigator.of(context).pop();

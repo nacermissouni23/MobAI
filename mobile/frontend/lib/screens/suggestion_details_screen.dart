@@ -6,7 +6,7 @@ import 'package:frontend/data/models/models.dart';
 import 'package:frontend/widgets/widgets.dart';
 
 class SuggestionDetailsScreen extends StatefulWidget {
-  final Suggestion? suggestion;
+  final Order? suggestion;
 
   const SuggestionDetailsScreen({super.key, this.suggestion});
 
@@ -16,7 +16,7 @@ class SuggestionDetailsScreen extends StatefulWidget {
 }
 
 class _SuggestionDetailsScreenState extends State<SuggestionDetailsScreen> {
-  late Suggestion _suggestion;
+  late Order _order;
   late int _quantity;
   late TextEditingController _justificationController;
   bool _isOverriding = false;
@@ -24,19 +24,29 @@ class _SuggestionDetailsScreenState extends State<SuggestionDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    _suggestion =
+    _order =
         widget.suggestion ??
-        const Suggestion(
+        Order(
           id: 'SG000',
-          productId: 'P-55219',
-          productName: 'Sample Product',
-          fromLocation: 'B7-N1-C7',
-          toLocation: 'B7-0A-01-03',
-          status: SuggestionStatus.ready,
-          type: SuggestionType.picking,
-          quantity: 15,
+          type: OrderType.picking,
+          status: OrderStatus.pending,
+          lines: const [
+            OrderLine(
+              productId: 'P-55219',
+              productName: 'Sample Product',
+              quantity: 15,
+              sourceFloor: 0,
+              sourceX: 7,
+              sourceY: 1,
+              destinationFloor: 0,
+              destinationX: 1,
+              destinationY: 3,
+            ),
+          ],
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
         );
-    _quantity = _suggestion.quantity;
+    _quantity = _order.quantity;
     _justificationController = TextEditingController();
   }
 
@@ -75,9 +85,10 @@ class _SuggestionDetailsScreenState extends State<SuggestionDetailsScreen> {
           ElevatedButton(
             onPressed: () {
               if (_justificationController.text.isNotEmpty) {
-                context.read<SuggestionsCubit>().overrideSuggestion(
-                  id: _suggestion.id,
-                  justification: _justificationController.text,
+                context.read<OrdersCubit>().overrideOrder(
+                  orderId: _order.id,
+                  overriddenBy: 'current_user',
+                  reason: _justificationController.text,
                 );
                 Navigator.pop(ctx);
                 setState(() => _isOverriding = false);
@@ -91,7 +102,7 @@ class _SuggestionDetailsScreenState extends State<SuggestionDetailsScreen> {
   }
 
   void _handleValidate() {
-    context.read<SuggestionsCubit>().validateSuggestion(_suggestion.id);
+    context.read<OrdersCubit>().validateOrder(_order.id);
     Navigator.of(context).pop();
   }
 
@@ -99,10 +110,7 @@ class _SuggestionDetailsScreenState extends State<SuggestionDetailsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
-      appBar: WarehouseAppBar(
-        title: _suggestion.typeLabel,
-        showBackButton: true,
-      ),
+      appBar: WarehouseAppBar(title: _order.typeLabel, showBackButton: true),
       body: Column(
         children: [
           Expanded(
@@ -114,13 +122,12 @@ class _SuggestionDetailsScreenState extends State<SuggestionDetailsScreen> {
                   _buildHeaderInfo(),
                   const SizedBox(height: 24),
                   LocationRow(
-                    fromValue: _suggestion.fromLocation,
-                    toValue: _suggestion.toLocation,
-                    showTo: _suggestion.type != SuggestionType.store,
+                    fromValue: _order.fromLocation,
+                    toValue: _order.toLocation,
+                    showTo: _order.type != OrderType.preparation,
                   ),
                   const SizedBox(height: 24),
-                  if (_suggestion.type == SuggestionType.picking)
-                    _buildGridSection(),
+                  if (_order.type == OrderType.picking) _buildGridSection(),
                 ],
               ),
             ),
@@ -145,15 +152,15 @@ class _SuggestionDetailsScreenState extends State<SuggestionDetailsScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              TypeBadge(label: _suggestion.typeLabel),
-              SuggestionStatusBadge(status: _suggestion.status),
+              TypeBadge(label: _order.typeLabel),
+              OrderStatusBadge(status: _order.status),
             ],
           ),
           const SizedBox(height: 16),
           const SectionLabel('Product ID'),
           const SizedBox(height: 4),
           Text(
-            _suggestion.productId,
+            _order.productId,
             style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w700,
@@ -164,7 +171,7 @@ class _SuggestionDetailsScreenState extends State<SuggestionDetailsScreen> {
           const SectionLabel('Product Name'),
           const SizedBox(height: 4),
           Text(
-            _suggestion.productName,
+            _order.productName,
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w500,
@@ -302,7 +309,7 @@ class _SuggestionDetailsScreenState extends State<SuggestionDetailsScreen> {
         secondaryLabel: 'CANCEL',
         onSecondary: () {
           setState(() {
-            _quantity = _suggestion.quantity;
+            _quantity = _order.quantity;
             _isOverriding = false;
           });
         },

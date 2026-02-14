@@ -2,9 +2,33 @@ import 'dart:convert';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/data/models/models.dart';
+import 'package:frontend/data/models/emplacement.dart';
+import 'package:frontend/data/repositories/emplacement_repository.dart';
 
-// States
+// ── Helper types ────────────────────────────────────────────
+
+/// Lightweight floor data for warehouse grid rendering.
+class WarehouseFloorData extends Equatable {
+  final int floorNumber;
+  final String name;
+  final List<Emplacement> cells;
+  final int width;
+  final int height;
+
+  const WarehouseFloorData({
+    required this.floorNumber,
+    required this.name,
+    required this.cells,
+    required this.width,
+    required this.height,
+  });
+
+  @override
+  List<Object?> get props => [floorNumber, name, cells.length, width, height];
+}
+
+// ── States ──────────────────────────────────────────────────
+
 abstract class WarehouseState extends Equatable {
   const WarehouseState();
   @override
@@ -13,16 +37,18 @@ abstract class WarehouseState extends Equatable {
 
 class WarehouseInitial extends WarehouseState {}
 
+class WarehouseLoading extends WarehouseState {}
+
 class WarehouseLoaded extends WarehouseState {
-  final List<WarehouseFloor> floors;
+  final List<WarehouseFloorData> floors;
   final int currentFloor;
 
   const WarehouseLoaded({required this.floors, this.currentFloor = 0});
 
-  List<WarehouseCell> get cells =>
+  List<Emplacement> get cells =>
       floors.isNotEmpty && currentFloor < floors.length
-      ? floors[currentFloor].cells
-      : [];
+          ? floors[currentFloor].cells
+          : [];
 
   List<String> get floorNames => floors.map((f) => f.name).toList();
 
@@ -38,99 +64,120 @@ class WarehouseLoaded extends WarehouseState {
   List<Object?> get props => [floors, currentFloor];
 }
 
-// Cubit
+class WarehouseError extends WarehouseState {
+  final String message;
+  const WarehouseError(this.message);
+  @override
+  List<Object?> get props => [message];
+}
+
+// ── Cubit ───────────────────────────────────────────────────
+
 class WarehouseCubit extends Cubit<WarehouseState> {
-  WarehouseCubit() : super(WarehouseInitial());
+  final EmplacementRepository _emplacementRepo;
 
-  List<WarehouseFloor> _floors = [];
+  WarehouseCubit({required EmplacementRepository emplacementRepository})
+      : _emplacementRepo = emplacementRepository,
+        super(WarehouseInitial());
 
+  List<WarehouseFloorData> _floors = [];
+
+  /// Load warehouse from asset JSON files and seed into the emplacement repository.
   Future<void> loadWarehouse() async {
+    emit(WarehouseLoading());
     try {
-      // Load all floor JSON files from assets
-      final groundJson = await rootBundle.loadString(
-        'assets/warehouse/ground_floor.json',
-      );
-      final floor12Json = await rootBundle.loadString(
-        'assets/warehouse/floor_1_and_2.json',
-      );
-      final floor3Json = await rootBundle.loadString(
-        'assets/warehouse/floor3.json',
-      );
-      final floor4Json = await rootBundle.loadString(
-        'assets/warehouse/floor4.json',
-      );
+      // Check if emplacements are already in the DB
+      final count = await _emplacementRepo.count();
+      if (count > 0) {
+        await _loadFromDatabase();
+        return;
+      }
+
+      // First run: load from JSON assets and insert into DB
+      await _loadFromAssetsAndSeed();
+    } catch (e) {
+      emit(WarehouseError('Failed to load warehouse: $e'));
+    }
+  }
+
+  Future<void> _loadFromDatabase() async {
+    final floorNumbers = await _emplacementRepo.getFloorNumbers();
+    final floors = <WarehouseFloorData>[];
+
+    for (final floorNum in floorNumbers) {
+      final cells = await _emplacementRepo.getByFloor(floorNum);
+      final dims = await _emplacementRepo.getFloorDimensions(floorNum);
+      final name = floorNum == 0 ? 'Ground' : 'Floor $floorNum';
+      floors.add(WarehouseFloorData(
+        floorNumber: floorNum,
+        name: name,
+        cells: cells,
+        width: dims['width'] ?? 29,
+        height: dims['height'] ?? 44,
+      ));
+    }
+
+    _floors = floors;
+    emit(WarehouseLoaded(floors: _floors, currentFloor: 0));
+  }
+
+  Future<void> _loadFromAssetsAndSeed() async {
+    try {
+      final groundJson = await rootBundle.loadString('assets/warehouse/ground_floor.json');
+      final floor12Json = await rootBundle.loadString('assets/warehouse/floor_1_and_2.json');
+      final floor3Json = await rootBundle.loadString('assets/warehouse/floor3.json');
+      final floor4Json = await rootBundle.loadString('assets/warehouse/floor4.json');
 
       final groundData = json.decode(groundJson) as Map<String, dynamic>;
       final floor12Data = json.decode(floor12Json) as Map<String, dynamic>;
       final floor3Data = json.decode(floor3Json) as Map<String, dynamic>;
       final floor4Data = json.decode(floor4Json) as Map<String, dynamic>;
 
-      // Parse ground floor
-      final groundCells = (groundData['cells'] as List)
-          .map((c) => WarehouseCell.fromJson(c as Map<String, dynamic>))
-          .toList();
-      final groundFloor = WarehouseFloor(
-        floorNumber: 0,
-        name: 'Ground',
-        cells: groundCells,
-        width: groundData['width'] as int? ?? 29,
-        height: groundData['height'] as int? ?? 44,
-      );
+      final allCells = <Emplacement>[];
 
-      // Parse floor 1 and 2 (same file, filter by floor)
-      final floor12Cells = (floor12Data['cells'] as List)
-          .map((c) => WarehouseCell.fromJson(c as Map<String, dynamic>))
-          .toList();
-      final floor1Cells = floor12Cells.where((c) => c.floor == 1).toList();
-      final floor2Cells = floor12Cells.where((c) => c.floor == 2).toList();
+      // Parse and convert JSON cells to Emplacement models
+      allCells.addAll(_parseCells(groundData, 0));
+      allCells.addAll(_parseCells(floor12Data, null)); // floor from cell data
+      allCells.addAll(_parseCells(floor3Data, 3));
+      allCells.addAll(_parseCells(floor4Data, 4));
 
-      final floor1 = WarehouseFloor(
-        floorNumber: 1,
-        name: 'Floor 1',
-        cells: floor1Cells,
-        width: floor12Data['width'] as int? ?? 29,
-        height: floor12Data['height'] as int? ?? 44,
-      );
+      // Batch insert into DB
+      await _emplacementRepo.insertAll(allCells);
 
-      final floor2 = WarehouseFloor(
-        floorNumber: 2,
-        name: 'Floor 2',
-        cells: floor2Cells,
-        width: floor12Data['width'] as int? ?? 29,
-        height: floor12Data['height'] as int? ?? 44,
-      );
-
-      // Parse floor 3
-      final floor3Cells = (floor3Data['cells'] as List)
-          .map((c) => WarehouseCell.fromJson(c as Map<String, dynamic>))
-          .toList();
-      final floor3 = WarehouseFloor(
-        floorNumber: 3,
-        name: 'Floor 3',
-        cells: floor3Cells,
-        width: floor3Data['width'] as int? ?? 29,
-        height: floor3Data['height'] as int? ?? 46,
-      );
-
-      // Parse floor 4
-      final floor4Cells = (floor4Data['cells'] as List)
-          .map((c) => WarehouseCell.fromJson(c as Map<String, dynamic>))
-          .toList();
-      final floor4 = WarehouseFloor(
-        floorNumber: 4,
-        name: 'Floor 4',
-        cells: floor4Cells,
-        width: floor4Data['width'] as int? ?? 29,
-        height: floor4Data['height'] as int? ?? 46,
-      );
-
-      _floors = [groundFloor, floor1, floor2, floor3, floor4];
-      emit(WarehouseLoaded(floors: _floors, currentFloor: 0));
+      // Now load from DB to get consistent state
+      await _loadFromDatabase();
     } catch (e) {
-      // Fallback: emit with empty floors
+      // Fallback: emit empty
       _floors = [];
       emit(WarehouseLoaded(floors: _floors, currentFloor: 0));
     }
+  }
+
+  List<Emplacement> _parseCells(Map<String, dynamic> data, int? defaultFloor) {
+    final cells = data['cells'] as List;
+    final now = DateTime.now();
+    return cells.map((c) {
+      final map = c as Map<String, dynamic>;
+      final floor = map['floor'] as int? ?? defaultFloor ?? 0;
+      return Emplacement(
+        id: _emplacementRepo.generateId(),
+        x: map['x'] as int? ?? 0,
+        y: map['y'] as int? ?? 0,
+        z: map['z'] as int? ?? 0,
+        floor: floor,
+        isObstacle: map['is_obstacle'] as bool? ?? map['type'] == 'obstacle',
+        isSlot: map['is_slot'] as bool? ?? map['type'] == 'slot',
+        isElevator: map['is_elevator'] as bool? ?? map['type'] == 'elevator',
+        isRoad: map['is_road'] as bool? ?? map['type'] == 'road',
+        isExpedition: map['is_expedition'] as bool? ?? map['type'] == 'expedition',
+        productId: map['product_id'] as String?,
+        quantity: map['quantity'] as int? ?? 0,
+        isOccupied: map['is_occupied'] as bool? ?? (map['product_id'] != null),
+        locationCode: map['location_code'] as String?,
+        createdAt: now,
+        updatedAt: now,
+      );
+    }).toList();
   }
 
   void switchFloor(int floorIndex) {
@@ -139,23 +186,24 @@ class WarehouseCubit extends Cubit<WarehouseState> {
     }
   }
 
-  void updateCell(int floorIndex, int x, int y, WarehouseCell updatedCell) {
-    if (_floors.isNotEmpty && floorIndex < _floors.length) {
-      final floor = _floors[floorIndex];
-      final updatedCells = floor.cells.map((c) {
-        if (c.x == x && c.y == y) return updatedCell;
-        return c;
-      }).toList();
-      _floors[floorIndex] = WarehouseFloor(
-        floorNumber: floor.floorNumber,
-        name: floor.name,
-        cells: updatedCells,
-        width: floor.width,
-        height: floor.height,
-      );
-      emit(
-        WarehouseLoaded(floors: List.from(_floors), currentFloor: floorIndex),
-      );
+  Future<void> updateCell(int floorIndex, int x, int y, Emplacement updatedCell) async {
+    try {
+      await _emplacementRepo.updateEntity(updatedCell);
+      // Refresh the specific floor
+      if (_floors.isNotEmpty && floorIndex < _floors.length) {
+        final floorNum = _floors[floorIndex].floorNumber;
+        final cells = await _emplacementRepo.getByFloor(floorNum);
+        _floors[floorIndex] = WarehouseFloorData(
+          floorNumber: _floors[floorIndex].floorNumber,
+          name: _floors[floorIndex].name,
+          cells: cells,
+          width: _floors[floorIndex].width,
+          height: _floors[floorIndex].height,
+        );
+        emit(WarehouseLoaded(floors: List.from(_floors), currentFloor: floorIndex));
+      }
+    } catch (e) {
+      emit(WarehouseError('Failed to update cell: $e'));
     }
   }
 }

@@ -213,12 +213,27 @@ class _AddSkuScreenState extends State<AddSkuScreen> {
                     onPressed: () {
                       if (_nameController.text.isNotEmpty &&
                           _skuIdController.text.isNotEmpty) {
-                        final quantity =
-                            int.tryParse(_quantityController.text) ?? 0;
-                        context.read<SkusCubit>().addSku(
+                        context.read<ProductsCubit>().addProduct(
                           name: _nameController.text,
-                          skuCode: _skuIdController.text,
-                          quantity: quantity,
+                          sku: _skuIdController.text,
+                          unitOfMeasure: _uniteController.text.isNotEmpty
+                              ? _uniteController.text
+                              : 'pcs',
+                          category: _categorieController.text.isNotEmpty
+                              ? _categorieController.text
+                              : null,
+                          isActive: _actif,
+                          isStackable: _isGerbable,
+                          unitsPerBundle: int.tryParse(
+                            _colisageFardeauController.text,
+                          ),
+                          unitsPerPallet: int.tryParse(
+                            _colisagePaletteController.text,
+                          ),
+                          volumePerUnit: double.tryParse(
+                            _volumeController.text,
+                          ),
+                          weight: double.tryParse(_poidsController.text),
                         );
                         Navigator.of(context).pop();
                       }

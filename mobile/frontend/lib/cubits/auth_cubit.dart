@@ -1,8 +1,10 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/data/models/models.dart';
+import 'package:frontend/data/models/user.dart';
+import 'package:frontend/data/repositories/user_repository.dart';
 
-// States
+// ── States ──────────────────────────────────────────────────
+
 abstract class AuthState extends Equatable {
   const AuthState();
   @override
@@ -14,7 +16,7 @@ class AuthInitial extends AuthState {}
 class AuthLoading extends AuthState {}
 
 class AuthAuthenticated extends AuthState {
-  final AppUser user;
+  final User user;
   const AuthAuthenticated(this.user);
   @override
   List<Object?> get props => [user];
@@ -27,51 +29,58 @@ class AuthError extends AuthState {
   List<Object?> get props => [message];
 }
 
-// Cubit
+// ── Cubit ───────────────────────────────────────────────────
+
 class AuthCubit extends Cubit<AuthState> {
-  AuthCubit() : super(AuthInitial());
+  final UserRepository _userRepo;
 
-  void login(String id, String password) {
+  AuthCubit({required UserRepository userRepository})
+    : _userRepo = userRepository,
+      super(AuthInitial());
+
+  User? get currentUser =>
+      state is AuthAuthenticated ? (state as AuthAuthenticated).user : null;
+
+  Future<void> login(String identifier, String password) async {
     emit(AuthLoading());
-
-    // Mock authentication logic
-    Future.delayed(const Duration(milliseconds: 800), () {
-      if (id.isEmpty || password.isEmpty) {
+    try {
+      if (identifier.isEmpty || password.isEmpty) {
         emit(const AuthError('Please enter both ID and password'));
         return;
       }
 
-      // Demo users
-      AppUser? user;
-      switch (id.toLowerCase()) {
-        case 'admin':
-          user = const AppUser(
-            id: 'admin',
-            fullName: 'Sarah Wilson',
-            role: UserRole.admin,
-          );
-          break;
-        case 'supervisor':
-          user = const AppUser(
-            id: 'supervisor',
-            fullName: 'Jane Smith',
-            role: UserRole.supervisor,
-          );
-          break;
-        case 'employee':
-          user = const AppUser(
-            id: 'employee',
-            fullName: 'John Doe',
-            role: UserRole.employee,
-          );
-          break;
-        default:
-          emit(const AuthError('Invalid credentials'));
-          return;
+      // Try by email first
+      var user = await _userRepo.authenticate(identifier, password);
+
+      // Fallback: find by name (for demo / legacy compatibility)
+      if (user == null) {
+        final byName = await _userRepo.query(
+          where: 'LOWER(name) = ? AND is_active = 1',
+          whereArgs: [identifier.toLowerCase()],
+          limit: 1,
+        );
+        if (byName.isNotEmpty) {
+          user = byName.first;
+        }
+      }
+
+      // Fallback: find by id (for demo / legacy compatibility)
+      if (user == null) {
+        final byId = await _userRepo.getById(identifier);
+        if (byId != null && byId.isActive) {
+          user = byId;
+        }
+      }
+
+      if (user == null) {
+        emit(const AuthError('Invalid credentials'));
+        return;
       }
 
       emit(AuthAuthenticated(user));
-    });
+    } catch (e) {
+      emit(AuthError('Login failed: $e'));
+    }
   }
 
   void logout() {

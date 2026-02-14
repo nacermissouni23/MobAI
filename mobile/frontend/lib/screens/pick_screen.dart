@@ -6,7 +6,7 @@ import 'package:frontend/widgets/widgets.dart';
 
 /// Pick Step 1: Path from current location to elevator.
 class PickScreen extends StatefulWidget {
-  final WarehouseTask task;
+  final Operation task;
   const PickScreen({super.key, required this.task});
 
   @override

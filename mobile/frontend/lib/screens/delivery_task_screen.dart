@@ -8,7 +8,7 @@ import 'package:frontend/widgets/widgets.dart';
 /// Screen for completing a delivery task.
 /// Employee confirms product + quantity delivered to expedition zone.
 class DeliveryTaskScreen extends StatefulWidget {
-  final WarehouseTask task;
+  final Operation task;
   const DeliveryTaskScreen({super.key, required this.task});
 
   @override
@@ -266,7 +266,7 @@ class _DeliveryTaskScreenState extends State<DeliveryTaskScreen> {
                   child: ElevatedButton.icon(
                     onPressed: _confirmed
                         ? () {
-                            context.read<TasksCubit>().completeTask(
+                            context.read<OperationsCubit>().completeOperation(
                               widget.task.id,
                             );
                             Navigator.of(context).pop();

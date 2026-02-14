@@ -255,7 +255,7 @@ class _WarehouseScreenState extends State<WarehouseScreen> {
 
 /// Custom painter for rendering the warehouse grid efficiently
 class _WarehouseGridPainter extends CustomPainter {
-  final List<WarehouseCell> cells;
+  final List<Emplacement> cells;
   final int gridWidth;
   final int gridHeight;
 
@@ -292,9 +292,9 @@ class _WarehouseGridPainter extends CustomPainter {
       Paint fillPaint;
       if (cell.isElevator) {
         fillPaint = elevatorPaint;
-      } else if (cell.isExpeditionZone) {
+      } else if (cell.isExpedition) {
         fillPaint = expeditionPaint;
-      } else if (cell.isVracZone) {
+      } else if (cell.isRoad) {
         fillPaint = vracPaint;
       } else if (cell.isObstacle) {
         fillPaint = obstaclePaint;
@@ -305,10 +305,7 @@ class _WarehouseGridPainter extends CustomPainter {
       }
 
       canvas.drawRect(rect, fillPaint);
-      if (cell.isSlot ||
-          cell.isElevator ||
-          cell.isExpeditionZone ||
-          cell.isVracZone) {
+      if (cell.isSlot || cell.isElevator || cell.isExpedition || cell.isRoad) {
         canvas.drawRect(rect, borderPaint);
       }
     }

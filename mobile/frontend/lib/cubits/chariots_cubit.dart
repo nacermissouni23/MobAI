@@ -1,9 +1,10 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/data/models/models.dart';
-import 'package:frontend/data/mock_data.dart';
+import 'package:frontend/data/models/chariot.dart';
+import 'package:frontend/data/repositories/chariot_repository.dart';
 
-// States
+// ── States ──────────────────────────────────────────────────
+
 abstract class ChariotsState extends Equatable {
   const ChariotsState();
   @override
@@ -12,6 +13,8 @@ abstract class ChariotsState extends Equatable {
 
 class ChariotsInitial extends ChariotsState {}
 
+class ChariotsLoading extends ChariotsState {}
+
 class ChariotsLoaded extends ChariotsState {
   final List<Chariot> chariots;
   const ChariotsLoaded(this.chariots);
@@ -19,37 +22,64 @@ class ChariotsLoaded extends ChariotsState {
   List<Object?> get props => [chariots];
 }
 
-// Cubit
+class ChariotsError extends ChariotsState {
+  final String message;
+  const ChariotsError(this.message);
+  @override
+  List<Object?> get props => [message];
+}
+
+// ── Cubit ───────────────────────────────────────────────────
+
 class ChariotsCubit extends Cubit<ChariotsState> {
-  ChariotsCubit() : super(ChariotsInitial());
+  final ChariotRepository _chariotRepo;
 
-  void loadChariots() {
-    emit(const ChariotsLoaded(MockData.chariots));
-  }
+  ChariotsCubit({required ChariotRepository chariotRepository})
+      : _chariotRepo = chariotRepository,
+        super(ChariotsInitial());
 
-  void addChariot(String chariotId) {
-    if (state is ChariotsLoaded) {
-      final current = (state as ChariotsLoaded).chariots;
-      final newChariot = Chariot(id: chariotId, isActive: true);
-      emit(ChariotsLoaded([...current, newChariot]));
+  Future<void> loadChariots() async {
+    emit(ChariotsLoading());
+    try {
+      final chariots = await _chariotRepo.getAllSorted();
+      emit(ChariotsLoaded(chariots));
+    } catch (e) {
+      emit(ChariotsError('Failed to load chariots: $e'));
     }
   }
 
-  void updateChariot(Chariot updatedChariot) {
-    if (state is ChariotsLoaded) {
-      final current = (state as ChariotsLoaded).chariots;
-      final updated = current.map((c) {
-        if (c.id == updatedChariot.id) return updatedChariot;
-        return c;
-      }).toList();
-      emit(ChariotsLoaded(updated));
+  Future<void> addChariot(String code, {bool isActive = true}) async {
+    try {
+      final now = DateTime.now();
+      final chariot = Chariot(
+        id: _chariotRepo.generateId(),
+        code: code,
+        isActive: isActive,
+        createdAt: now,
+        updatedAt: now,
+      );
+      await _chariotRepo.insert(chariot);
+      await loadChariots();
+    } catch (e) {
+      emit(ChariotsError('Failed to add chariot: $e'));
     }
   }
 
-  void deleteChariot(String chariotId) {
-    if (state is ChariotsLoaded) {
-      final current = (state as ChariotsLoaded).chariots;
-      emit(ChariotsLoaded(current.where((c) => c.id != chariotId).toList()));
+  Future<void> updateChariot(Chariot updatedChariot) async {
+    try {
+      await _chariotRepo.updateEntity(updatedChariot);
+      await loadChariots();
+    } catch (e) {
+      emit(ChariotsError('Failed to update chariot: $e'));
+    }
+  }
+
+  Future<void> deleteChariot(String chariotId) async {
+    try {
+      await _chariotRepo.softDelete(chariotId);
+      await loadChariots();
+    } catch (e) {
+      emit(ChariotsError('Failed to delete chariot: $e'));
     }
   }
 }

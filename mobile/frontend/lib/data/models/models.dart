@@ -1,7 +1,10 @@
+export '../enums.dart';
 export 'user.dart';
-export 'task.dart';
+export 'product.dart';
+export 'emplacement.dart';
 export 'chariot.dart';
-export 'sku.dart';
-export 'suggestion.dart';
-export 'warehouse.dart';
+export 'order.dart';
+export 'operation.dart';
+export 'operation_log.dart';
 export 'report.dart';
+export 'stock_ledger.dart';
