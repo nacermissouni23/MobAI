@@ -266,8 +266,21 @@ class _DeliveryTaskScreenState extends State<DeliveryTaskScreen> {
                   child: ElevatedButton.icon(
                     onPressed: _confirmed
                         ? () {
-                            context.read<OperationsCubit>().completeOperation(
-                              widget.task.id,
+                            final authState = context.read<AuthCubit>().state;
+                            String? validatorId;
+                            if (authState is AuthAuthenticated) {
+                              validatorId = authState.user.id;
+                            }
+
+                            context.read<OperationsCubit>().validateDelivery(
+                              operationId: widget.task.id,
+                              validatorId: validatorId,
+                            );
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Delivery validated'),
+                              ),
                             );
                             Navigator.of(context).pop();
                           }

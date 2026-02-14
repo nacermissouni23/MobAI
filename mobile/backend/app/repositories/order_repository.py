@@ -30,11 +30,23 @@ class OrderRepository(BaseRepository):
         """Get all pending orders."""
         return await self.get_by_status(OrderStatus.PENDING)
 
+    async def get_pending_orders(self) -> List[Dict[str, Any]]:
+        """Get all pending and AI-generated orders (not yet fully validated)."""
+        pending = await self.get_by_status(OrderStatus.PENDING)
+        ai_generated = await self.get_by_status(OrderStatus.AI_GENERATED)
+        return pending + ai_generated
+
+    async def get_overridden_orders(self) -> List[Dict[str, Any]]:
+        """Get all overridden orders."""
+        return await self.get_by_status(OrderStatus.OVERRIDDEN)
+
     async def get_filtered(
         self,
         order_type: Optional[OrderType] = None,
         supervisor_id: Optional[str] = None,
         status: Optional[OrderStatus] = None,
+        status_filter: Optional[OrderStatus] = None,
+        ai_generated_only: bool = False,
     ) -> List[Dict[str, Any]]:
         """Get orders with optional filters."""
         filters = []
@@ -44,4 +56,8 @@ class OrderRepository(BaseRepository):
             filters.append(("supervisor_id", "==", supervisor_id))
         if status:
             filters.append(("status", "==", status.value))
+        if status_filter:
+            filters.append(("status", "==", status_filter.value))
+        if ai_generated_only:
+            filters.append(("generated_by_ai", "==", True))
         return await self.query(filters=filters if filters else None)

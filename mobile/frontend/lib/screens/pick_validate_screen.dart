@@ -17,7 +17,21 @@ class PickValidateScreen extends StatelessWidget {
   });
 
   void _handleValidate(BuildContext context) {
-    context.read<OperationsCubit>().completeOperation(task.id);
+    final authState = context.read<AuthCubit>().state;
+    String? validatorId;
+    if (authState is AuthAuthenticated) {
+      validatorId = authState.user.id;
+    }
+
+    context.read<OperationsCubit>().validatePicking(
+      operationId: task.id,
+      pickedQuantity: pickedQuantity,
+      validatorId: validatorId,
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Picking validated, stock updated')),
+    );
     Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
@@ -57,7 +71,8 @@ class PickValidateScreen extends StatelessWidget {
                   const SizedBox(height: 24),
 
                   // Path Grid
-                  const PathGrid(
+                  PathGrid(
+                    route: task.suggestedRoute,
                     title: 'Warehouse Path Map',
                     startIndex: 20,
                     endIndex: 4,

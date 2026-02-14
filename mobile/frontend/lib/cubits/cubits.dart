@@ -8,3 +8,4 @@ export 'orders_cubit.dart';
 export 'reports_cubit.dart';
 export 'logs_cubit.dart';
 export 'warehouse_cubit.dart';
+export 'sync_cubit.dart';

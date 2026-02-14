@@ -117,7 +117,8 @@ class OperationRepository extends BaseRepository<Operation> {
     );
     final map = <OperationStatus, int>{};
     for (final row in results) {
-      map[OperationStatus.fromString(row['status'] as String)] = row['cnt'] as int;
+      map[OperationStatus.fromString(row['status'] as String)] =
+          row['cnt'] as int;
     }
     return map;
   }

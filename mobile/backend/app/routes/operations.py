@@ -22,11 +22,15 @@ from app.repositories.emplacement_repository import EmplacementRepository
 from app.repositories.chariot_repository import ChariotRepository
 from app.repositories.user_repository import UserRepository
 from app.schemas.operation import OperationCreate, OperationApprove, OperationResponse
-from app.ai.storage_optimizer import storage_optimizer
-from app.ai.picking_optimizer import picking_optimizer
-from app.ai.pathfinding import get_pathfinder
 from app.utils.dependencies import get_current_user, get_supervisor_user
 from app.utils.logger import logger
+
+# Lazy AI imports – gracefully degrades if modules unavailable
+try:
+    from app.ai import get_storage_optimizer, get_pathfinder
+except Exception:
+    get_storage_optimizer = None  # type: ignore[assignment]
+    get_pathfinder = None  # type: ignore[assignment]
 
 router = APIRouter()
 operation_repo = OperationRepository()
@@ -232,13 +236,16 @@ async def approve_operation(
             if chariot:
                 update_data["chariot_id"] = chariot["id"]
 
-    # Generate route to destination
+    # Generate route to destination (if AI available)
     dest_emplacement_id = update_data.get("emplacement_id") or op.get("emplacement_id")
     source_emplacement_id = update_data.get("source_emplacement_id") or op.get("source_emplacement_id")
     if dest_emplacement_id and source_emplacement_id:
-        route = await _generate_route(source_emplacement_id, dest_emplacement_id)
-        if route:
-            update_data["suggested_route"] = route
+        try:
+            route = await _generate_route(source_emplacement_id, dest_emplacement_id)
+            if route:
+                update_data["suggested_route"] = route
+        except Exception as e:
+            logger.warning(f"Route generation failed: {e}")
 
     # Set status to in_progress
     update_data["status"] = OperationStatus.IN_PROGRESS.value
@@ -339,12 +346,13 @@ async def _on_receipt_validated(
     """
     After receipt validation:
     1. Increment product reception_freq
-    2. Use AI storage_optimizer to suggest destination emplacement
+    2. Use AI StorageOptimizer to suggest destination emplacement
     3. Find source expedition zone
     4. Generate route via pathfinder
     5. Create transfer operation (status=pending for supervisor approval)
     """
     product_id = op.get("product_id")
+    quantity = op.get("quantity", 0)
 
     # 1. Increment reception frequency
     if product_id:
@@ -352,11 +360,52 @@ async def _on_receipt_validated(
 
     # 2. AI suggests best storage slot
     dest_emplacement_id = None
-    if product_id:
-        suggestions = await storage_optimizer.suggest_slot(product_id, top_n=1)
-        if suggestions:
-            best_slot = suggestions[0]
-            dest_emplacement_id = best_slot.get("id")
+    suggested_route = None
+    if product_id and get_storage_optimizer is not None:
+        try:
+            # Fetch product data for the optimizer
+            product = await product_repo.get_by_id(product_id)
+            products_to_store = [{
+                'id': product_id,
+                'poids': product.get('weight_kg', 10) if product else 10,
+                'volume': product.get('volume_m3', 0.01) if product else 0.01,
+                'fragile': product.get('fragile', False) if product else False,
+                'quantite': quantity,
+                'frequence': int(product.get('demand_freq', 2)) if product else 2,
+            }]
+
+            # Build current slot state from Firestore emplacements
+            all_slots = await emplacement_repo.get_filtered(is_slot=True)
+            slots_from_db = {}
+            for slot in all_slots:
+                key = (slot.get('floor', 0), slot.get('x', 0), slot.get('y', 0))
+                slots_from_db[key] = {
+                    'product_id': slot.get('product_id'),
+                    'quantite': slot.get('quantity', 0),
+                }
+
+            optimizer = get_storage_optimizer(slots_from_db)
+            assignments = optimizer.assign_storage(products_to_store)
+
+            if assignments:
+                best = assignments[0]
+                slot_x, slot_y, slot_floor = best['slot']
+                # Find emplacement doc by coordinates
+                dest_empl = await emplacement_repo.get_by_coordinates(
+                    x=slot_x, y=slot_y, floor=slot_floor,
+                )
+                if dest_empl:
+                    dest_emplacement_id = dest_empl['id']
+                # Use the optimizer-generated path as for route
+                if best.get('path'):
+                    suggested_route = best['path']
+
+                logger.info(
+                    f"AI storage optimization: product {product_id} → "
+                    f"slot ({slot_x},{slot_y},f{slot_floor}), cost={best.get('path_cost', 'N/A')}"
+                )
+        except Exception as e:
+            logger.warning(f"AI storage optimization failed: {e}. Transfer will have no destination.")
 
     # 3. Find expedition zone as source
     source_emplacement_id = None
@@ -364,18 +413,20 @@ async def _on_receipt_validated(
     if expedition_zones:
         source_emplacement_id = expedition_zones[0].get("id")
 
-    # 4. Generate route
-    suggested_route = None
-    if source_emplacement_id and dest_emplacement_id:
-        suggested_route = await _generate_route(source_emplacement_id, dest_emplacement_id)
+    # 4. Generate route via pathfinder if AI didn't provide one
+    if not suggested_route and source_emplacement_id and dest_emplacement_id:
+        try:
+            suggested_route = await _generate_route(source_emplacement_id, dest_emplacement_id)
+        except Exception as e:
+            logger.warning(f"Pathfinding route generation failed: {e}")
 
-    # 5. Create transfer operation (pending supervisor approval)
+    # 5. Create transfer operation (pending)
     now = datetime.utcnow().isoformat()
     transfer_data = {
         "type": OperationType.TRANSFER.value,
         "status": OperationStatus.PENDING.value,
         "product_id": product_id,
-        "quantity": op.get("quantity", 0),
+        "quantity": quantity,
         "employee_id": op.get("employee_id"),
         "chariot_id": None,  # assigned on approval
         "order_id": op.get("order_id"),
@@ -521,19 +572,25 @@ async def _assign_random_chariot(operation_id: str) -> Optional[Dict[str, Any]]:
 async def _generate_route(
     source_emplacement_id: str, dest_emplacement_id: str
 ) -> Optional[list]:
-    """Generate a route between two emplacements using the pathfinder."""
+    """Generate a route between two emplacements using the A* pathfinder."""
+    if get_pathfinder is None:
+        return None
+
     source = await emplacement_repo.get_by_id(source_emplacement_id)
     dest = await emplacement_repo.get_by_id(dest_emplacement_id)
     if not source or not dest:
         return None
 
-    pathfinder = get_pathfinder()
-    start = (source.get("x", 0), source.get("y", 0), source.get("floor", 0))
-    goal = (dest.get("x", 0), dest.get("y", 0), dest.get("floor", 0))
+    try:
+        pathfinder = get_pathfinder()
+        start = (source.get("x", 0), source.get("y", 0), source.get("floor", 0))
+        goal = (dest.get("x", 0), dest.get("y", 0), dest.get("floor", 0))
 
-    result = pathfinder.find_path(start, goal)
-    if result:
-        return result.get("path")
+        result = pathfinder.find_path(start, goal)
+        if result:
+            return result.get("path")
+    except Exception as e:
+        logger.warning(f"Pathfinder error: {e}")
     return None
 
 

@@ -8,7 +8,7 @@ class DatabaseHelper {
 
   DatabaseHelper._internal();
 
-  static const int _version = 1;
+  static const int _version = 2;
   static const String _dbName = 'warehouse.db';
 
   Future<Database> get database async {
@@ -171,6 +171,7 @@ class DatabaseHelper {
         completed_at TEXT,
         product_id TEXT,
         quantity INTEGER NOT NULL DEFAULT 0,
+        suggested_route TEXT,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL,
         server_id TEXT,
@@ -303,8 +304,11 @@ class DatabaseHelper {
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    // Future migrations go here.
-    // if (oldVersion < 2) { ... }
+    if (oldVersion < 2) {
+      await db.execute(
+        'ALTER TABLE operations ADD COLUMN suggested_route TEXT',
+      );
+    }
   }
 
   /// Close the database.

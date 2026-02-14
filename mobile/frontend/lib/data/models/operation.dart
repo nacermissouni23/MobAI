@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:equatable/equatable.dart';
 import 'package:frontend/data/enums.dart';
 
@@ -25,6 +27,9 @@ class Operation extends Equatable {
   final int quantity;
   final DateTime createdAt;
   final DateTime updatedAt;
+
+  /// AI-suggested route as list of coordinate lists, e.g. [[x,y,floor], ...].
+  final List<List<int>>? suggestedRoute;
 
   // Sync fields
   final String? serverId;
@@ -56,6 +61,7 @@ class Operation extends Equatable {
     this.quantity = 0,
     required this.createdAt,
     required this.updatedAt,
+    this.suggestedRoute,
     this.serverId,
     this.syncPending = true,
     this.lastSyncedAt,
@@ -63,7 +69,7 @@ class Operation extends Equatable {
   });
 
   @override
-  List<Object?> get props => [id, type, status, employeeId];
+  List<Object?> get props => [id, type, status, employeeId, suggestedRoute];
 
   Map<String, dynamic> toMap() {
     return {
@@ -90,6 +96,7 @@ class Operation extends Equatable {
       'quantity': quantity,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
+      'suggested_route': suggestedRoute != null ? jsonEncode(suggestedRoute) : null,
       'server_id': serverId,
       'sync_pending': syncPending ? 1 : 0,
       'last_synced_at': lastSyncedAt?.toIso8601String(),
@@ -128,6 +135,7 @@ class Operation extends Equatable {
       quantity: map['quantity'] as int? ?? 0,
       createdAt: DateTime.parse(map['created_at'] as String),
       updatedAt: DateTime.parse(map['updated_at'] as String),
+      suggestedRoute: _decodeSuggestedRoute(map['suggested_route']),
       serverId: map['server_id'] as String?,
       syncPending: (map['sync_pending'] as int?) == 1,
       lastSyncedAt: map['last_synced_at'] != null
@@ -160,7 +168,29 @@ class Operation extends Equatable {
       'completed_at': completedAt?.toIso8601String(),
       'product_id': productId,
       'quantity': quantity,
+      'suggested_route': suggestedRoute,
     };
+  }
+
+  /// Decode suggested_route from either a JSON string (SQLite) or a List (API).
+  static List<List<int>>? _decodeSuggestedRoute(dynamic raw) {
+    if (raw == null) return null;
+    try {
+      List decoded;
+      if (raw is String) {
+        decoded = jsonDecode(raw) as List;
+      } else if (raw is List) {
+        decoded = raw;
+      } else {
+        return null;
+      }
+      return decoded.map<List<int>>((e) {
+        final list = (e as List).map((v) => (v as num).toInt()).toList();
+        return list;
+      }).toList();
+    } catch (_) {
+      return null;
+    }
   }
 
   factory Operation.fromJson(Map<String, dynamic> json, {String? localId}) {
@@ -198,6 +228,7 @@ class Operation extends Equatable {
       updatedAt: json['updated_at'] != null
           ? DateTime.parse(json['updated_at'] as String)
           : DateTime.now(),
+      suggestedRoute: _decodeSuggestedRoute(json['suggested_route']),
       serverId: json['id'] as String?,
       syncPending: false,
       lastSyncedAt: DateTime.now(),
@@ -229,6 +260,7 @@ class Operation extends Equatable {
     int? quantity,
     DateTime? createdAt,
     DateTime? updatedAt,
+    List<List<int>>? suggestedRoute,
     String? serverId,
     bool? syncPending,
     DateTime? lastSyncedAt,
@@ -258,6 +290,7 @@ class Operation extends Equatable {
       quantity: quantity ?? this.quantity,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      suggestedRoute: suggestedRoute ?? this.suggestedRoute,
       serverId: serverId ?? this.serverId,
       syncPending: syncPending ?? this.syncPending,
       lastSyncedAt: lastSyncedAt ?? this.lastSyncedAt,

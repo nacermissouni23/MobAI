@@ -6,8 +6,29 @@ import 'package:frontend/data/models/models.dart';
 import 'package:frontend/widgets/widgets.dart';
 import 'package:intl/intl.dart';
 
-class TasksScreen extends StatelessWidget {
+class TasksScreen extends StatefulWidget {
   const TasksScreen({super.key});
+
+  @override
+  State<TasksScreen> createState() => _TasksScreenState();
+}
+
+class _TasksScreenState extends State<TasksScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _loadTasks();
+  }
+
+  void _loadTasks() {
+    final authState = context.read<AuthCubit>().state;
+    if (authState is AuthAuthenticated &&
+        authState.user.role == UserRole.employee) {
+      context.read<OperationsCubit>().loadByEmployee(authState.user.id);
+    } else {
+      context.read<OperationsCubit>().loadOperations();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,20 +63,50 @@ class TasksScreen extends StatelessWidget {
       body: BlocBuilder<OperationsCubit, OperationsState>(
         builder: (context, state) {
           if (state is OperationsLoaded) {
+            // Show all non-completed/non-failed tasks.
+            // For employees: loadByEmployee already filters by employee_id.
+            // For supervisors/admins: loadOperations shows everything.
             final tasks = state.operations
                 .where(
                   (t) =>
                       t.status != OperationStatus.completed &&
-                      (t.type == OperationType.picking ||
-                          t.type == OperationType.transfer),
+                      t.status != OperationStatus.failed,
                 )
                 .toList();
-            return ListView.builder(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-              itemCount: tasks.length,
-              itemBuilder: (context, index) {
-                return _TaskCard(task: tasks[index]);
-              },
+
+            if (tasks.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.check_circle_outline,
+                      size: 64,
+                      color: Colors.grey.shade300,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'No pending tasks',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey.shade400,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            return RefreshIndicator(
+              onRefresh: () async => _loadTasks(),
+              child: ListView.builder(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                itemCount: tasks.length,
+                itemBuilder: (context, index) {
+                  return _TaskCard(task: tasks[index]);
+                },
+              ),
             );
           }
           return const Center(
@@ -113,6 +164,7 @@ class _TaskCard extends StatelessWidget {
                   'productName': task.productId ?? 'Unknown',
                   'productId': task.productId ?? '',
                   'expectedQuantity': task.quantity,
+                  'operationId': task.id,
                 },
               );
               break;
@@ -148,9 +200,32 @@ class _TaskCard extends StatelessWidget {
                       color: AppColors.primary,
                     ),
                   ),
-                  Icon(
-                    Icons.chevron_right,
-                    color: AppColors.primary.withValues(alpha: 0.4),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          task.statusLabel,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primary.withValues(alpha: 0.7),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Icon(
+                        Icons.chevron_right,
+                        color: AppColors.primary.withValues(alpha: 0.4),
+                      ),
+                    ],
                   ),
                 ],
               ),

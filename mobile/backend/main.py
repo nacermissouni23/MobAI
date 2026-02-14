@@ -22,6 +22,7 @@ from app.routes import (
     inventory,
     reports,
     sync,
+    ai_agent,
 )
 from app.utils.logger import logger
 
@@ -63,6 +64,7 @@ def create_app() -> FastAPI:
     app.include_router(inventory.router, prefix="/api/inventory", tags=["Inventory"])
     app.include_router(reports.router, prefix="/api/reports", tags=["Reports"])
     app.include_router(sync.router, prefix="/api/sync", tags=["Sync"])
+    app.include_router(ai_agent.router, prefix="/api/ai", tags=["AI Agent"])
 
     @app.get("/", tags=["Health"])
     async def root():

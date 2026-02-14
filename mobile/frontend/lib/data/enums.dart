@@ -9,8 +9,10 @@ enum UserRole {
   final String value;
   const UserRole(this.value);
 
-  static UserRole fromString(String s) =>
-      UserRole.values.firstWhere((e) => e.value == s, orElse: () => UserRole.employee);
+  static UserRole fromString(String s) => UserRole.values.firstWhere(
+    (e) => e.value == s,
+    orElse: () => UserRole.employee,
+  );
 
   String get label {
     switch (this) {
@@ -33,8 +35,10 @@ enum OperationType {
   final String value;
   const OperationType(this.value);
 
-  static OperationType fromString(String s) =>
-      OperationType.values.firstWhere((e) => e.value == s, orElse: () => OperationType.receipt);
+  static OperationType fromString(String s) => OperationType.values.firstWhere(
+    (e) => e.value == s,
+    orElse: () => OperationType.receipt,
+  );
 
   String get label {
     switch (this) {
@@ -59,8 +63,8 @@ enum OperationStatus {
   final String value;
   const OperationStatus(this.value);
 
-  static OperationStatus fromString(String s) =>
-      OperationStatus.values.firstWhere((e) => e.value == s, orElse: () => OperationStatus.pending);
+  static OperationStatus fromString(String s) => OperationStatus.values
+      .firstWhere((e) => e.value == s, orElse: () => OperationStatus.pending);
 
   String get label {
     switch (this) {
@@ -84,8 +88,10 @@ enum OrderType {
   final String value;
   const OrderType(this.value);
 
-  static OrderType fromString(String s) =>
-      OrderType.values.firstWhere((e) => e.value == s, orElse: () => OrderType.command);
+  static OrderType fromString(String s) => OrderType.values.firstWhere(
+    (e) => e.value == s,
+    orElse: () => OrderType.command,
+  );
 
   String get label {
     switch (this) {
@@ -109,8 +115,10 @@ enum OrderStatus {
   final String value;
   const OrderStatus(this.value);
 
-  static OrderStatus fromString(String s) =>
-      OrderStatus.values.firstWhere((e) => e.value == s, orElse: () => OrderStatus.pending);
+  static OrderStatus fromString(String s) => OrderStatus.values.firstWhere(
+    (e) => e.value == s,
+    orElse: () => OrderStatus.pending,
+  );
 
   String get label {
     switch (this) {

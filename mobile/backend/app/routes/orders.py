@@ -19,10 +19,22 @@ from app.repositories.order_log_repository import OrderLogRepository
 from app.repositories.operation_repository import OperationRepository
 from app.repositories.operation_log_repository import OperationLogRepository
 from app.repositories.user_repository import UserRepository
+from app.repositories.emplacement_repository import EmplacementRepository
 from app.schemas.order import OrderCreate, OrderResponse
 from app.schemas.order_log import OrderLogResponse
-from app.ai.forecasting import forecasting_engine
 from app.utils.dependencies import get_current_user, get_supervisor_user
+
+# Lazy AI import – gracefully degrades if numpy/scipy missing
+try:
+    from app.ai.forecasting import forecasting_engine
+except Exception:
+    forecasting_engine = None
+
+try:
+    from app.ai import get_pathfinder, plan_product_route
+except Exception:
+    get_pathfinder = None
+    plan_product_route = None
 from app.utils.logger import logger
 
 router = APIRouter()
@@ -31,6 +43,7 @@ order_log_repo = OrderLogRepository()
 operation_repo = OperationRepository()
 operation_log_repo = OperationLogRepository()
 user_repo = UserRepository()
+emplacement_repo = EmplacementRepository()
 
 
 # ── CRUD ─────────────────────────────────────────────────────────
@@ -164,6 +177,9 @@ async def validate_order(
     order_type = order.get("type")
     if order_type == OrderType.COMMAND.value:
         await _create_receipt_from_order(order, order_id, current_user)
+    # Trigger picking operations for 'preparation' orders
+    elif order_type == OrderType.PREPARATION.value:
+        await _create_picking_from_preparation(order, order_id, current_user)
 
     return OrderResponse(**updated_order)
 
@@ -183,6 +199,13 @@ async def generate_preparation_orders(
     The forecaster predicts which products will need delivery soon
     and creates 'preparation' orders for them.
     """
+    if forecasting_engine is None:
+        from fastapi import HTTPException
+        raise HTTPException(
+            status_code=503,
+            detail="AI forecasting is not available (numpy may not be installed).",
+        )
+
     predictions = await forecasting_engine.predict_preparation_orders(
         days=days,
         min_demand_frequency=min_demand_freq,
@@ -270,3 +293,103 @@ async def _create_receipt_from_order(
         f"Receipt operation {created_op['id']} created for order {order_id}, "
         f"assigned to employee {employee_id}"
     )
+
+
+async def _create_picking_from_preparation(
+    order: Dict[str, Any],
+    order_id: str,
+    current_user: Dict[str, Any],
+) -> None:
+    """
+    Create picking operation(s) triggered by preparation order validation.
+
+    Uses AI picking optimizer to find the best source emplacements for the product
+    and creates one picking operation per source location.
+    """
+    product_id = order.get("product_id")
+    quantity = order.get("quantity", 0)
+
+    if not product_id or quantity <= 0:
+        logger.warning(f"Preparation order {order_id} has no product/quantity")
+        return
+
+    # Find all emplacements that hold this product
+    product_locations = await emplacement_repo.get_product_locations(product_id)
+    if not product_locations:
+        logger.warning(f"No stock found for product {product_id} on any emplacement")
+        return
+
+    # Pick a random active employee for the picking operations
+    active_employees = await user_repo.get_active_employees()
+    employee_id = None
+    if active_employees:
+        employee = random.choice(active_employees)
+        employee_id = employee["id"]
+
+    now = datetime.utcnow().isoformat()
+    remaining = quantity
+
+    # Sort by quantity descending (pick from fullest first)
+    product_locations.sort(key=lambda loc: loc.get("quantity", 0), reverse=True)
+
+    for loc in product_locations:
+        if remaining <= 0:
+            break
+        loc_qty = loc.get("quantity", 0)
+        if loc_qty <= 0:
+            continue
+
+        pick_qty = min(remaining, loc_qty)
+        remaining -= pick_qty
+
+        # Try AI route (expedition zone → source slot)
+        suggested_route = None
+        try:
+            if get_pathfinder is not None:
+                expedition_zones = await emplacement_repo.get_expedition_zones()
+                if expedition_zones:
+                    exp = expedition_zones[0]
+                    pathfinder = get_pathfinder()
+                    start = (exp.get("x", 0), exp.get("y", 0), exp.get("floor", 0))
+                    goal = (loc.get("x", 0), loc.get("y", 0), loc.get("floor", 0))
+                    result = pathfinder.find_path(start, goal)
+                    if result:
+                        suggested_route = result.get("path")
+        except Exception as e:
+            logger.warning(f"Picking route AI failed: {e}")
+
+        op_data = {
+            "type": OperationType.PICKING.value,
+            "status": OperationStatus.PENDING.value,
+            "product_id": product_id,
+            "quantity": pick_qty,
+            "employee_id": employee_id,
+            "chariot_id": None,
+            "order_id": order_id,
+            "emplacement_id": None,  # no destination (goes to expedition zone)
+            "source_emplacement_id": loc.get("id"),
+            "suggested_route": suggested_route,
+        }
+        created_op = await operation_repo.create(op_data)
+
+        await operation_log_repo.create({
+            "operation_id": created_op["id"],
+            "action": "created",
+            "type": OperationType.PICKING.value,
+            "product_id": product_id,
+            "quantity": pick_qty,
+            "employee_id": employee_id,
+            "order_id": order_id,
+            "date": now,
+        })
+
+        logger.info(
+            f"Picking operation {created_op['id']} created for preparation order {order_id}: "
+            f"{pick_qty}x {product_id} from emplacement {loc.get('id')}"
+        )
+
+    if remaining > 0:
+        logger.warning(
+            f"Preparation order {order_id}: insufficient stock. "
+            f"{remaining} units of {product_id} could not be assigned to picking."
+        )

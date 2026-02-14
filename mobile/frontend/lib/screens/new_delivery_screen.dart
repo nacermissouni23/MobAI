@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/config/theme.dart';
+import 'package:frontend/cubits/cubits.dart';
 import 'package:frontend/widgets/widgets.dart';
 
 class NewDeliveryScreen extends StatefulWidget {
@@ -14,6 +16,7 @@ class _NewDeliveryScreenState extends State<NewDeliveryScreen> {
   final _productIdController = TextEditingController();
   final _quantityController = TextEditingController(text: '1');
   int _quantity = 1;
+  bool _submitting = false;
 
   @override
   void dispose() {
@@ -21,6 +24,40 @@ class _NewDeliveryScreenState extends State<NewDeliveryScreen> {
     _productIdController.dispose();
     _quantityController.dispose();
     super.dispose();
+  }
+
+  Future<void> _handleConfirm() async {
+    final productId = _productIdController.text.trim();
+    if (productId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a product ID')),
+      );
+      return;
+    }
+
+    setState(() => _submitting = true);
+
+    final authState = context.read<AuthCubit>().state;
+    String? employeeId;
+    if (authState is AuthAuthenticated) {
+      employeeId = authState.user.id;
+    }
+
+    final op = await context.read<OperationsCubit>().createDeliveryOperation(
+      productId: productId,
+      quantity: _quantity,
+      employeeId: employeeId,
+    );
+
+    if (!mounted) return;
+    setState(() => _submitting = false);
+
+    if (op != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Delivery operation created')),
+      );
+      Navigator.of(context).pop();
+    }
   }
 
   @override
@@ -239,9 +276,7 @@ class _NewDeliveryScreenState extends State<NewDeliveryScreen> {
                   width: double.infinity,
                   height: 64,
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
+                    onPressed: _submitting ? null : _handleConfirm,
                     style: ElevatedButton.styleFrom(
                       elevation: 8,
                       shadowColor: AppColors.primary.withValues(alpha: 0.2),

@@ -37,4 +37,7 @@ class OperationStatus(str, Enum):
 class OrderStatus(str, Enum):
     """Lifecycle status of an order."""
     PENDING = "pending"
+    AI_GENERATED = "ai_generated"
     VALIDATED = "validated"
+    OVERRIDDEN = "overridden"
+    COMPLETED = "completed"

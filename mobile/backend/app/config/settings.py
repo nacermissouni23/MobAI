@@ -17,8 +17,8 @@ class Settings(BaseSettings):
     PORT: int = 8000
 
     # Firebase
-    FIREBASE_CREDENTIALS_PATH: str = "./firebase-credentials.json"
-    FIREBASE_PROJECT_ID: str = ""
+    FIREBASE_CREDENTIALS_PATH: str = "./app/serviceAccountKey.json"
+    FIREBASE_PROJECT_ID: str = "mobai-wms"
 
     # JWT
     JWT_SECRET_KEY: str = "change-me-in-production"
@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     JWT_EXPIRATION_MINUTES: int = 480
 
     # CORS
-    CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:8080"]
+    CORS_ORIGINS: List[str] = ["*"]
 
     # AI Settings
     FORECASTING_DAYS: int = 30

@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/config/theme.dart';
+import 'package:frontend/cubits/cubits.dart';
 import 'package:frontend/widgets/widgets.dart';
 
 class ReceivedReceiptScreen extends StatefulWidget {
   final String productName;
   final String productId;
   final int expectedQuantity;
+  final String? operationId;
 
   const ReceivedReceiptScreen({
     super.key,
     required this.productName,
     required this.productId,
     required this.expectedQuantity,
+    this.operationId,
   });
 
   @override
@@ -288,6 +292,36 @@ class _ReceivedReceiptScreenState extends State<ReceivedReceiptScreen> {
                   height: 64,
                   child: ElevatedButton(
                     onPressed: () {
+                      // If we have an operationId, validate via cubit
+                      if (widget.operationId != null) {
+                        final authState = context.read<AuthCubit>().state;
+                        String? validatorId;
+                        if (authState is AuthAuthenticated) {
+                          validatorId = authState.user.id;
+                        }
+
+                        final discrepancy =
+                            _receivedQuantity - widget.expectedQuantity;
+
+                        context.read<OperationsCubit>().validateReceipt(
+                          operationId: widget.operationId!,
+                          actualQuantity: _receivedQuantity,
+                          productId: widget.productId,
+                          validatorId: validatorId,
+                          discrepancy: discrepancy != 0 ? discrepancy : null,
+                        );
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              _quantityMatches
+                                  ? 'Receipt validated, transfer created'
+                                  : 'Receipt validated with discrepancy',
+                            ),
+                          ),
+                        );
+                      }
+
                       Navigator.of(context).pop({
                         'productName': widget.productName,
                         'productId': widget.productId,

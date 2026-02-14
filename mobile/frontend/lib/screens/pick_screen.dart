@@ -70,7 +70,8 @@ class _PickScreenState extends State<PickScreen> {
                   const SizedBox(height: 24),
 
                   // Path Grid
-                  const PathGrid(
+                  PathGrid(
+                    route: widget.task.suggestedRoute,
                     title: 'Path Visualization',
                     startIndex: 20,
                     endIndex: 4,

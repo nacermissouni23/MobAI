@@ -25,7 +25,20 @@ class _StoreTaskScreenState extends State<StoreTaskScreen> {
   }
 
   void _handleValidate() {
-    context.read<OperationsCubit>().completeOperation(widget.task.id);
+    final authState = context.read<AuthCubit>().state;
+    String? validatorId;
+    if (authState is AuthAuthenticated) {
+      validatorId = authState.user.id;
+    }
+
+    context.read<OperationsCubit>().validateStorage(
+      operationId: widget.task.id,
+      validatorId: validatorId,
+    );
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Storage validated')));
     Navigator.of(context).pop();
   }
 
@@ -49,7 +62,8 @@ class _StoreTaskScreenState extends State<StoreTaskScreen> {
                     toValue: widget.task.toLocation ?? 'Unknown',
                   ),
                   const SizedBox(height: 24),
-                  const PathGrid(
+                  PathGrid(
+                    route: widget.task.suggestedRoute,
                     title: 'Path Visualization',
                     hint: 'Follow highlighted aisle',
                   ),
