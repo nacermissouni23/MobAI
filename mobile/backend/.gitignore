@@ -39,4 +39,4 @@ htmlcov/
 *.log
 logs/
 
-app/serviceAccountKey.json
+mobile/backend/serviceAccountKey.json
