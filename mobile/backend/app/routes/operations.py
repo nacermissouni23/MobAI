@@ -22,8 +22,7 @@ from app.repositories.emplacement_repository import EmplacementRepository
 from app.repositories.chariot_repository import ChariotRepository
 from app.repositories.user_repository import UserRepository
 from app.schemas.operation import OperationCreate, OperationApprove, OperationResponse
-from app.ai.storage_optimizer import storage_optimizer
-from app.ai.picking_optimizer import picking_optimizer
+from app.services.warehouse_ai_agent_service import get_ai_agent
 from app.ai.pathfinding import get_pathfinder
 from app.utils.dependencies import get_current_user, get_supervisor_user
 from app.utils.logger import logger
@@ -353,10 +352,30 @@ async def _on_receipt_validated(
     # 2. AI suggests best storage slot
     dest_emplacement_id = None
     if product_id:
-        suggestions = await storage_optimizer.suggest_slot(product_id, top_n=1)
-        if suggestions:
-            best_slot = suggestions[0]
-            dest_emplacement_id = best_slot.get("id")
+        try:
+            agent = get_ai_agent()
+            product = await product_repo.get_by_id(product_id)
+            product_data = {
+                'poids': product.get('weight_kg', 10) if product else 10,
+                'volume': product.get('volume_m3', 0.01) if product else 0.01,
+                'fragile': product.get('fragile', False) if product else False,
+                'frequence': int(product.get('demand_freq', 2)) if product else 2,
+            }
+            result = await agent.handle_receipt(
+                product_id=product_id,
+                quantity_palettes=op.get("quantity", 1),
+                product_data=product_data,
+            )
+            if result and result.get("recommended_location"):
+                loc = result["recommended_location"]
+                # Find emplacement by coordinates
+                emp = await emplacement_repo.get_by_coordinates(
+                    loc["x"], loc["y"], 0, loc["floor"]
+                )
+                if emp:
+                    dest_emplacement_id = emp["id"]
+        except Exception as e:
+            logger.warning(f"AI storage suggestion failed: {e}")
 
     # 3. Find expedition zone as source
     source_emplacement_id = None

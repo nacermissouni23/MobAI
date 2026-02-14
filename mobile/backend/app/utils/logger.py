@@ -34,3 +34,16 @@ def setup_logger(name: str = "warehouse_ai", level: int = logging.INFO) -> loggi
 
 
 logger = setup_logger()
+
+
+def get_logger(name: str = "warehouse_ai") -> logging.Logger:
+    """
+    Get a named logger instance. Alias for setup_logger.
+
+    Args:
+        name: Logger name (typically __name__).
+
+    Returns:
+        Configured Logger instance.
+    """
+    return setup_logger(name=name)

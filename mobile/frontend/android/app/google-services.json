@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "72433468106",
+    "project_id": "mobai-wms",
+    "storage_bucket": "mobai-wms.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:72433468106:android:802c7d4f2293f634126a33",
+        "android_client_info": {
+          "package_name": "com.example.frontend"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC0MKZXNrY2OF_Az9H2b2RqVzNiUk_KhI8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

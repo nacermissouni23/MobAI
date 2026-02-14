@@ -12,6 +12,7 @@ from app.routes import (
     inventory,
     reports,
     sync,
+    ai_agent,
 )
 
 __all__ = [
@@ -26,4 +27,5 @@ __all__ = [
     "inventory",
     "reports",
     "sync",
+    "ai_agent",
 ]
