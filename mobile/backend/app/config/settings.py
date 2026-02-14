@@ -17,8 +17,8 @@ class Settings(BaseSettings):
     PORT: int = 8000
 
     # Firebase
-    FIREBASE_CREDENTIALS_PATH: str = "./app/serviceAccountKey.json"    
-    FIREBASE_PROJECT_ID: str = ""
+    FIREBASE_CREDENTIALS_PATH: str = "./serviceAccountKey.json"
+    FIREBASE_PROJECT_ID: str = "mobai-wms"
 
     # JWT
     JWT_SECRET_KEY: str = "change-me-in-production"
